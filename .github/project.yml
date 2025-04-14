@@ -1,0 +1,73 @@
+name: ReelNet Project Management
+description: Project management configuration for ReelNet
+
+views:
+  - name: Backlog
+    type: board
+    columns:
+      - name: To Do
+        filters:
+          - field: status
+            value: todo
+      - name: In Progress
+        filters:
+          - field: status
+            value: in-progress
+      - name: Review
+        filters:
+          - field: status
+            value: review
+      - name: Done
+        filters:
+          - field: status
+            value: done
+
+  - name: Sprint Planning
+    type: table
+    fields:
+      - name: Title
+        type: text
+      - name: Status
+        type: select
+        options:
+          - todo
+          - in-progress
+          - review
+          - done
+      - name: Priority
+        type: select
+        options:
+          - high
+          - medium
+          - low
+      - name: Assignee
+        type: user
+      - name: Due Date
+        type: date
+      - name: Labels
+        type: labels
+
+automation:
+  - name: Move to In Progress
+    trigger:
+      field: status
+      value: in-progress
+    action:
+      type: add-label
+      label: in-progress
+
+  - name: Move to Review
+    trigger:
+      field: status
+      value: review
+    action:
+      type: add-label
+      label: review
+
+  - name: Move to Done
+    trigger:
+      field: status
+      value: done
+    action:
+      type: add-label
+      label: done 
