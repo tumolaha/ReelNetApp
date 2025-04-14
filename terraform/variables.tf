@@ -80,4 +80,10 @@ variable "ai_service_desired_count" {
   description = "Desired number of AI service tasks"
   type        = number
   default     = 1
+}
+
+variable "gradle_version" {
+  description = "Gradle version for Spring Boot backend"
+  type        = string
+  default     = "7.6.3"
 } 

@@ -5,10 +5,14 @@ node_modules/
 
 # Testing
 /coverage
+/frontend/coverage
+/ai-service/coverage
 
 # Production build
 /build
 /dist
+/frontend/dist
+/ai-service/dist
 
 # Environment variables
 .env
@@ -16,6 +20,16 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/ai-service/.env
+/ai-service/.env.local
+/ai-service/.env.development.local
+/ai-service/.env.test.local
+/ai-service/.env.production.local
 
 # Logs
 npm-debug.log*
@@ -23,6 +37,8 @@ yarn-debug.log*
 yarn-error.log*
 logs/
 *.log
+/frontend/logs/
+/ai-service/logs/
 
 # IDE
 .idea/
@@ -43,13 +59,56 @@ logs/
 ehthumbs.db
 Thumbs.db
 
-# Backend specific
-backend/dist/
-backend/node_modules/
-backend/uploads/
+# Backend specific (Spring Boot)
+/backend/target/
+/backend/.mvn/
+/backend/mvnw
+/backend/mvnw.cmd
+/backend/.settings/
+/backend/.classpath
+/backend/.project
+/backend/.factorypath
+/backend/application-*.yml
+!/backend/application.yml
+/backend/application-*.properties
+!/backend/application.properties
+/backend/logs/
+/backend/uploads/
 
-# Frontend specific
-frontend/dist/
-frontend/node_modules/
-frontend/.cache/
-frontend/build/
+# Frontend specific (React + Vite + TypeScript)
+/frontend/node_modules/
+/frontend/.cache/
+/frontend/build/
+/frontend/dist/
+/frontend/.vite/
+/frontend/tsconfig.tsbuildinfo
+/frontend/.eslintcache
+/frontend/coverage/
+
+# AI Service specific
+/ai-service/node_modules/
+/ai-service/.cache/
+/ai-service/build/
+/ai-service/dist/
+/ai-service/.vite/
+/ai-service/tsconfig.tsbuildinfo
+/ai-service/.eslintcache
+/ai-service/coverage/
+
+# Terraform
+/terraform/.terraform/
+/terraform/*.tfstate
+/terraform/*.tfstate.backup
+/terraform/.terraform.lock.hcl
+/terraform/terraform.tfvars
+/terraform/override.tf
+/terraform/override.tf.json
+/terraform/*.tfvars.json
+/terraform/.terraformrc
+/terraform/terraform.rc
+/terraform/crash.log
+/terraform/crash.*.log
+
+# Docker
+.docker/
+docker-compose.override.yml

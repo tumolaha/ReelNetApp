@@ -46,6 +46,18 @@ views:
         type: date
       - name: Labels
         type: labels
+      - name: Technology
+        type: select
+        options:
+          - frontend
+          - backend
+          - ai-service
+          - infrastructure
+          - gradle
+          - spring-boot
+          - react
+          - typescript
+          - vite
 
 automation:
   - name: Move to In Progress

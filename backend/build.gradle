@@ -1,0 +1,84 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.4'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.learning'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+    // Core Spring Boot dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' // Actuator for monitoring and management
+    implementation 'org.springframework.boot:spring-boot-starter-web' // Web application support
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // Validation support
+
+
+    // Database dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA for database interaction
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Redis support
+    runtimeOnly 'org.postgresql:postgresql' // PostgreSQL driver
+    implementation 'org.flywaydb:flyway-core' // Database migrations
+    implementation 'org.flywaydb:flyway-database-postgresql' // Flyway PostgreSQL support
+    
+    // H2 Database for development
+    runtimeOnly 'com.h2database:h2' // H2 in-memory database
+
+    // Security dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-security' // Security support
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // JWT API
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // JWT Implementation
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JWT Jackson integration
+
+    // Messaging dependencies
+    implementation 'org.apache.kafka:kafka-streams' // Kafka Streams
+    implementation 'org.springframework.kafka:spring-kafka' // Spring Kafka
+
+    // Utility dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-mail' // Email support
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // Template engine
+    implementation 'org.springframework.boot:spring-boot-starter-quartz' // Scheduling support
+    implementation 'org.springframework.boot:spring-boot-starter-cache' // Caching support
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0' // OpenAPI/Swagger support
+
+    // Development dependencies
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // Development tools
+    // Commenting out Docker Compose support temporarily since Docker is not installed
+    // developmentOnly 'org.springframework.boot:spring-boot-docker-compose' // Docker Compose support
+
+    // Annotation processing
+    compileOnly 'org.projectlombok:lombok' // Lombok for reducing boilerplate code
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor' // Configuration processor
+
+    // Testing dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' // Testing support
+    testImplementation 'org.springframework.kafka:spring-kafka-test' // Kafka testing
+    testImplementation 'org.springframework.security:spring-security-test' // Security testing
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit platform launcher
+}
+
+tasks.named('bootBuildImage') {
+	builder = 'paketobuildpacks/builder-jammy-base:latest'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

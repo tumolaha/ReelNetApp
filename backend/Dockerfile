@@ -1,16 +1,17 @@
 # Build stage
-FROM maven:3.8.4-openjdk-17-slim AS build
+FROM gradle:7.6.3-jdk17 AS build
 
 WORKDIR /app
 
-# Copy pom.xml
-COPY pom.xml .
+# Copy Gradle files
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN mvn clean package -DskipTests
+RUN gradle build -x test
 
 # Production stage
 FROM openjdk:17-slim
@@ -18,7 +19,7 @@ FROM openjdk:17-slim
 WORKDIR /app
 
 # Copy the JAR file from the build stage
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Expose port 8080
 EXPOSE 8080

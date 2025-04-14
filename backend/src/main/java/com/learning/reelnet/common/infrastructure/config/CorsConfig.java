@@ -1,0 +1,69 @@
+package com.learning.reelnet.common.infrastructure.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
+
+/**
+ * Configuration for Cross-Origin Resource Sharing (CORS).
+ */
+@Configuration
+public class CorsConfig {
+
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:8080}")
+    private List<String> allowedOrigins;
+
+    @Value("${cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}")
+    private List<String> allowedMethods;
+
+    @Value("${cors.allowed-headers:*}")
+    private List<String> allowedHeaders;
+
+    @Value("${cors.exposed-headers:Authorization,Content-Disposition}")
+    private List<String> exposedHeaders;
+
+    @Value("${cors.max-age:3600}")
+    private long maxAge;
+
+    @Value("${cors.allow-credentials:true}")
+    private boolean allowCredentials;
+
+    /**
+     * Creates a CORS filter with the configured CORS settings.
+     *
+     * @return the CORS filter
+     */
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        
+        // Set allowed origins
+        config.setAllowedOrigins(allowedOrigins);
+        
+        // Set allowed HTTP methods
+        config.setAllowedMethods(allowedMethods);
+        
+        // Set allowed headers
+        config.setAllowedHeaders(allowedHeaders);
+        
+        // Set exposed headers
+        config.setExposedHeaders(exposedHeaders);
+        
+        // Set max age for preflight requests
+        config.setMaxAge(maxAge);
+        
+        // Allow credentials (cookies, authorization headers)
+        config.setAllowCredentials(allowCredentials);
+
+        // Apply the CORS configuration to all paths
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
+    }
+}

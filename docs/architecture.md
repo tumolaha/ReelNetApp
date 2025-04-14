@@ -38,26 +38,44 @@ reelnet/
 │       └── core/                 # Core services
 ├── backend/
 │   ├── src/main/java/com/reelnet/
-│   │   ├── application/          # Application services
-│   │   ├── domain/               # Domain models and logic
-│   │   │   ├── reading/
-│   │   │   ├── listening/
-│   │   │   ├── speaking/
-│   │   │   ├── writing/
-│   │   │   ├── vocabulary/
-│   │   │   ├── exam/
-│   │   │   ├── community/
-│   │   │   └── user/
-│   │   ├── infrastructure/       # Infrastructure concerns
-│   │   │   ├── persistence/
-│   │   │   ├── security/
-│   │   │   ├── messaging/
-│   │   │   └── integration/
-│   │   ├── interfaces/           # API endpoints
-│   │   │   ├── rest/
-│   │   │   └── websocket/
-│   │   └── ReelNetApplication.java
-│   └── src/test/
+│   │   ├── common/                       # Shared utilities and base classes
+│   │   │   ├── domain/                   # Shared domain classes
+│   │   │   │   ├── DomainEvent.java      # Base domain event
+│   │   │   │   └── ValueObject.java      # Base value object
+│   │   │   ├── infrastructure/           # Shared infrastructure
+│   │   │   │   ├── persistence/          # Database configs
+│   │   │   │   └── security/             # Security configs 
+│   │   │   └── utils/                    # Utilities
+│   │   ├── modules/                      # Business modules
+│   │   │   ├── user/                     # User module
+│   │   │   │   ├── api/                  # Public API (interfaces, DTOs)
+│   │   │   │   │   ├── UserDto.java
+│   │   │   │   │   └── UserService.java  # Service interface
+│   │   │   │   ├── domain/               # Domain model
+│   │   │   │   │   ├── User.java         # Entity
+│   │   │   │   │   ├── UserId.java       # Value object
+│   │   │   │   │   └── UserRepository.java  # Repository interface
+│   │   │   │   ├── application/          # Use cases & application services
+│   │   │   │   │   ├── UserServiceImpl.java
+│   │   │   │   │   ├── commands/         # Command handlers
+│   │   │   │   │   └── queries/          # Query handlers
+│   │   │   │   └── infrastructure/       # Module-specific infrastructure
+│   │   │   │       ├── JpaUserRepository.java
+│   │   │   │       └── UserConfig.java
+│   │   │   ├── reading/                  # Reading module (same structure)
+│   │   │   ├── listening/                # Listening module (same structure)
+│   │   │   ├── speaking/                 # Speaking module (same structure)
+│   │   │   ├── writing/                  # Writing module (same structure)
+│   │   │   ├── vocabulary/               # Vocabulary module (same structure)
+│   │   │   ├── exam/                     # Exam module (same structure)
+│   │   │   └── community/                # Community module (same structure)
+│   │   ├── interfaces/                   # External interfaces
+│   │   │   ├── rest/                     # REST controllers
+│   │   │   │   ├── UserController.java
+│   │   │   │   └── ExamController.java
+│   │   │   └── websocket/                # WebSocket handlers
+│   │   └── ReelNetApplication.java       # Main application    
+│   └── src/test/                         # Test cases
 └── shared-libraries/             # Shared code between modules
 ```
 
@@ -66,11 +84,13 @@ reelnet/
 Each module represents a bounded context in the system and has the following structure:
 
 ```
+```
 module/
 ├── api/                 # Public API of the module (interfaces, DTOs)
-├── internal/            # Implementation details
+├── application/         # Application services and use cases
 ├── domain/              # Domain model and business logic
-└── infrastructure/      # Infrastructure details specific to module
+└── infrastructure/      # Infrastructure details specific to the module
+```    
 ```
 
 ## 3. Architectural Layers
