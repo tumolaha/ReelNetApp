@@ -16,6 +16,11 @@ spring:
   # Disable cache for testing
   cache:
     type: none
+    
+  # Explicitly disable Redis for tests
+  data:
+    redis:
+      enabled: false
 
 # Logging Configuration
 logging:
@@ -36,3 +41,30 @@ app:
   # Use in-memory storage for testing
   storage:
     location: ${java.io.tmpdir}/reelnet-test
+
+# Test-specific Actuator settings
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  # Configure health indicators for test
+  health:
+    redis:
+      enabled: false  # Now enabled to use our dummy implementation
+    diskspace:
+      enabled: true
+    db:
+      enabled: true
+  # Metrics configuration  
+  simple:
+    metrics:
+      export:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: false

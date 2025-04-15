@@ -3,7 +3,6 @@ package com.learning.reelnet.common.infrastructure.messaging;
 import com.learning.reelnet.common.domain.base.BaseAggregateRoot;
 import com.learning.reelnet.common.domain.events.DomainEvent;
 import com.learning.reelnet.common.domain.events.EventPublisher;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

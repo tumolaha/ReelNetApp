@@ -70,3 +70,22 @@ app:
     type: s3
     bucket: reelnet-uploads
     region: ${AWS_REGION:us-east-1}
+
+# Production-specific Actuator settings
+management:
+  endpoints:
+    web:
+      exposure:
+        # In production, be more selective about exposed endpoints
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  prometheus:
+    metrics:
+      export:
+        enabled: true  # Use Prometheus in production
+  server:
+    port: 8081  # Optional: Use separate port for actuator in production
+    ssl:
+      enabled: true  # Security best practice for production

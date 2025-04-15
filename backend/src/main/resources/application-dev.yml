@@ -47,3 +47,18 @@ app:
   # Use local file storage for development
   storage:
     location: ./uploads
+
+# Development-specific Actuator settings
+management:
+  endpoints:
+    web:
+      exposure:
+        # In development, expose all endpoints for testing
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  simple:
+    metrics:
+      export:
+        enabled: true  # Use simple metrics for development

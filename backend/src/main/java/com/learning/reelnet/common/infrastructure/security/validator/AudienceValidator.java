@@ -1,4 +1,4 @@
-package com.learning.reelnet.common.infrastructure.security;
+package com.learning.reelnet.common.infrastructure.security.validator;
 
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;

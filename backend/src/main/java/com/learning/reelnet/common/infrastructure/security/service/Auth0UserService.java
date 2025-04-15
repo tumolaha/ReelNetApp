@@ -1,4 +1,4 @@
-package com.learning.reelnet.common.infrastructure.security;
+package com.learning.reelnet.common.infrastructure.security.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -94,7 +94,6 @@ public class Auth0UserService {
      *
      * @return an array of permissions, or empty array if not available
      */
-    @SuppressWarnings("unchecked")
     public String[] getCurrentUserPermissions() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

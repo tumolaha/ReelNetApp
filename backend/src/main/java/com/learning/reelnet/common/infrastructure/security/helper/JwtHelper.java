@@ -1,4 +1,4 @@
-package com.learning.reelnet.common.infrastructure.security;
+package com.learning.reelnet.common.infrastructure.security.helper;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

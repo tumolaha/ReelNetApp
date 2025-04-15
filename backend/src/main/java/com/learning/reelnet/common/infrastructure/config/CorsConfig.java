@@ -7,6 +7,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 
 /**
@@ -25,6 +27,7 @@ import java.util.List;
  * </ul>
  */
 @Configuration
+@Slf4j // Tự động tạo logger
 public class CorsConfig {
 
     @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:8080}")

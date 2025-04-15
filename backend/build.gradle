@@ -78,6 +78,12 @@ dependencies {
 
     // Add spring-dotenv for loading environment variables from .env file
     implementation 'me.paulschwarz:spring-dotenv:2.5.4'
+
+    // Add Micrometer for metrics collection
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // Add Spring AOP for metrics aspect
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 tasks.named('bootBuildImage') {

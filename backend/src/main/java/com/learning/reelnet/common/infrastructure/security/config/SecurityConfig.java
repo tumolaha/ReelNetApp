@@ -1,4 +1,4 @@
-package com.learning.reelnet.common.infrastructure.security;
+package com.learning.reelnet.common.infrastructure.security.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +15,11 @@ import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.CorsFilter;
 
+import com.learning.reelnet.common.infrastructure.security.Auth0Properties;
+import com.learning.reelnet.common.infrastructure.security.validator.AudienceValidator;
+
+import lombok.RequiredArgsConstructor;
+
 /**
  * Security configuration for the application.
  * This class configures Spring Security with Auth0 JWT validation.
@@ -22,6 +27,7 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Autowired

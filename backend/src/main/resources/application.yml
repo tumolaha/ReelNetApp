@@ -198,11 +198,86 @@ app:
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,env,loggers,flyway,cache,mappings,beans,conditions,configprops,scheduledtasks,threaddump,heapdump,logfile
+      cors:
+        allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+        allowed-methods: GET
   endpoint:
     health:
       show-details: when-authorized
+      show-components: when-authorized
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: ${management.health.group.readiness.include:db,diskSpace}
+        liveness:
+          include: ping
+    info:
+      enabled: true
+    env:
+      post:
+        enabled: false  # Disable changing environment at runtime for security
+    shutdown:
+      enabled: false    # Disable shutdown endpoint for security
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    git:
+      enabled: true
+    build:
+      enabled: true
   health:
+    defaults:
+      enabled: true
+    diskspace:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: ${spring.data.redis.enabled:false}
     mail:
       enabled: false
+    kafka:
+      enabled: ${spring.kafka.enabled:false}
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.75, 0.95, 0.99
+    enable:
+      jvm: true
+      process: true
+      system: true
+      logback: true
+      tomcat: true
+      jdbc: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Add application info for the info endpoint
+info:
+  application:
+    name: ${spring.application.name}
+    description: Reel Network Application Backend
+    version: 0.1.0
+  contact:
+    email: support@reelnet.com
+    website: https://reelnet.com
+  server:
+    environment: ${spring.profiles.active}

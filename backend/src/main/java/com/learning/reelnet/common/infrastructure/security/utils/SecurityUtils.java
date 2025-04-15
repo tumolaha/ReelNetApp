@@ -1,4 +1,4 @@
-package com.learning.reelnet.common.infrastructure.security;
+package com.learning.reelnet.common.infrastructure.security.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
