@@ -1,0 +1,38 @@
+# Test-specific configurations
+spring:
+  # Database Configuration  
+  datasource:
+    url: jdbc:h2:mem:reelnet-test
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  # JPA Configuration  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  
+  # Disable cache for testing
+  cache:
+    type: none
+
+# Logging Configuration
+logging:
+  level:
+    root: WARN
+    '[com.learning.reelnet]': INFO
+    
+# Disable security for testing
+security:
+  basic:
+    enabled: false
+
+# Test-specific application properties
+app:
+  features:
+    enable-swagger: false
+  
+  # Use in-memory storage for testing
+  storage:
+    location: ${java.io.tmpdir}/reelnet-test

@@ -11,6 +11,18 @@ import java.util.List;
 
 /**
  * Configuration for Cross-Origin Resource Sharing (CORS).
+ * This is the sole CORS configuration for the application and should be used instead of
+ * WebMvcConfigurer.addCorsMappings() as it provides more flexibility and applies earlier in the filter chain.
+ * <p>
+ * CORS settings can be configured in application.properties with the following properties:
+ * <ul>
+ *   <li>cors.allowed-origins</li>
+ *   <li>cors.allowed-methods</li>
+ *   <li>cors.allowed-headers</li>
+ *   <li>cors.exposed-headers</li>
+ *   <li>cors.max-age</li>
+ *   <li>cors.allow-credentials</li>
+ * </ul>
  */
 @Configuration
 public class CorsConfig {
@@ -35,6 +47,7 @@ public class CorsConfig {
 
     /**
      * Creates a CORS filter with the configured CORS settings.
+     * This filter will be applied to all requests before they reach the controllers.
      *
      * @return the CORS filter
      */

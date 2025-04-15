@@ -1,0 +1,49 @@
+# Development-specific configurations
+spring:
+  # Database Configuration  
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+  
+  # JPA Configuration  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        '[format_sql]': true
+        dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+  
+  # Kafka Configuration - disabled in development
+  kafka:
+    enabled: false
+  
+  # Flyway Configuration - disabled in development for now
+  flyway:
+    enabled: false
+  
+  # Enable development tools
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    '[com.learning.reelnet]': DEBUG
+    '[org.hibernate.SQL]': DEBUG
+    
+# Development-specific application properties
+app:
+  features:
+    enable-swagger: true
+  
+  # Use local file storage for development
+  storage:
+    location: ./uploads

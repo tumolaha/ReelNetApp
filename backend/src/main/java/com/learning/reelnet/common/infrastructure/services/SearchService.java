@@ -9,7 +9,6 @@ import com.learning.reelnet.common.infrastructure.persistence.SpecificationBuild
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,16 +17,16 @@ import java.util.function.Function;
 
 /**
  * Generic service for searching entities using specifications.
+ * This is an abstract class that should be extended by concrete service implementations.
  *
  * @param <T>  the entity type
  * @param <ID> the entity ID type
  * @param <R>  the repository type
  */
-@Service
 @RequiredArgsConstructor
-public class SearchService<T extends BaseEntity<ID>, ID extends Serializable, R extends BaseRepository<T, ID>> {
+public abstract class SearchService<T extends BaseEntity<ID>, ID extends Serializable, R extends BaseRepository<T, ID>> {
 
-    private final R repository;
+    protected final R repository;
     private String[] searchableFields = {};
 
     /**

@@ -1,0 +1,72 @@
+# Production-specific configurations
+spring:
+  # Database Configuration  
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      idle-timeout: 30000
+  
+  # JPA Configuration  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+  
+  # Kafka Configuration for production
+  kafka:
+    enabled: true
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:reelnet-prod-group}
+  
+  # Flyway Configuration for production
+  flyway:
+    enabled: false # Keep disabled unless you have migrations ready
+  
+  # Production cache configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${SPRING_REDIS_PASSWORD:}
+
+# Logging Configuration
+logging:
+  level:
+    root: WARN
+    '[com.learning.reelnet]': INFO
+  file:
+    name: /var/log/reelnet/application.log
+    
+# Production security settings
+security:
+  require-ssl: true
+  jwt:
+    token:
+      secret-key: ${JWT_SECRET_KEY}
+      expire-length: ${JWT_EXPIRATION:3600}
+
+# Production-specific application properties
+app:
+  features:
+    enable-swagger: false
+  
+  # Use cloud storage for production
+  storage:
+    type: s3
+    bucket: reelnet-uploads
+    region: ${AWS_REGION:us-east-1}
