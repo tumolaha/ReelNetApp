@@ -1,8 +1,9 @@
 package com.learning.reelnet.common.infrastructure.messaging;
 
-import com.learning.reelnet.common.domain.base.BaseAggregateRoot;
-import com.learning.reelnet.common.domain.events.DomainEvent;
-import com.learning.reelnet.common.domain.events.EventPublisher;
+import com.learning.reelnet.common.infrastructure.events.DomainEvent;
+import com.learning.reelnet.common.infrastructure.events.EventPublisher;
+import com.learning.reelnet.common.model.base.BaseAggregateRoot;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
