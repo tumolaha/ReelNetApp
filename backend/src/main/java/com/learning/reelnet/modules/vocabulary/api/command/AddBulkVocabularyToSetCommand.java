@@ -2,7 +2,6 @@ package com.learning.reelnet.modules.vocabulary.api.command;
 
 import com.learning.reelnet.common.application.cqrs.command.Command;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

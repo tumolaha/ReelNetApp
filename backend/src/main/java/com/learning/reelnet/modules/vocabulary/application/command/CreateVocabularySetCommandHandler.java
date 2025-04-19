@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import com.learning.reelnet.common.application.cqrs.command.CommandHandler;
 import com.learning.reelnet.modules.vocabulary.api.command.CreateVocabularySetCommand;
-import com.learning.reelnet.modules.vocabulary.api.dto.VocabularyDto;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.application.services.VocabularyApplicationService;
 import com.learning.reelnet.modules.vocabulary.application.services.VocabularySetApplicationService;

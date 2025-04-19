@@ -39,20 +39,20 @@ public interface SpringDataVocabularySetRepository extends JpaRepository<Vocabul
         /*
          * * Tìm kiếm theo tên
          */
-        @Query("SELECT vs FROM VocabularySet vs WHERE vs.name LIKE %:name%")
+        @Query("SELECT vs FROM VocabularySet vs WHERE vs.createdBy LIKE %:createdBy%")
         List<VocabularySet> findByCreatedBy(String createdBy);
 
         /*
          * * Tìm kiếm theo visibility
          * (public, private, friends)
          */
-        @Query("SELECT vs FROM VocabularySet vs WHERE vs.difficultyLevel = :difficultyLevel")
+        @Query("SELECT vs FROM VocabularySet vs WHERE vs.visibility = :visibility")
         List<VocabularySet> findByVisibility(VocabularySet.Visibility visibility);
 
         /*
          * * Tìm kiếm theo category
          */
-        @Query("SELECT vs FROM VocabularySet vs WHERE vs.difficultyLevel = :difficultyLevel")
+        @Query("SELECT vs FROM VocabularySet vs WHERE vs.category = :category")
         List<VocabularySet> findByCategory(VocabularySet.Category category);
 
         /*
