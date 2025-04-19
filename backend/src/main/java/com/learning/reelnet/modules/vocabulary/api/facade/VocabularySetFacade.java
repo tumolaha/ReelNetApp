@@ -17,13 +17,15 @@ import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Visibi
 public interface VocabularySetFacade {
         /**
          * Tạo mới bộ từ vựng
+         * @throws Exception 
          */
-        VocabularySetDto createVocabularySet(VocabularySetDto.CreateRequest createRequest);
+        Optional<VocabularySetDto> createVocabularySet(VocabularySetDto.CreateRequest createRequest) throws Exception;
 
         /**
          * Lấy thông tin bộ từ vựng theo ID
+         * @throws Exception 
          */
-        Optional<VocabularySetDto> getVocabularySetById(UUID id);
+        Optional<VocabularySetDto> getVocabularySetById(UUID id) throws Exception;
 
         /**
          * Cập nhật bộ từ vựng

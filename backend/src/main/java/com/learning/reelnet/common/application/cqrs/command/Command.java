@@ -1,34 +1,29 @@
 package com.learning.reelnet.common.application.cqrs.command;
 
-import java.io.Serializable;
+import java.util.UUID;
 
 /**
- * Base interface for all command objects in the application.
- * Commands represent an intention to change the state of the system.
- * <p>
- * In the Command pattern (part of CQRS), commands are sent to a command handler
- * that processes them and applies the necessary changes to the domain model.
- * <p>
- * Commands should:
- * - Be named with a verb in imperative form (e.g., CreateUser, UpdateProfile)
- * - Contain all the data needed to perform the operation
- * - Be immutable
+ * Marker interface for commands in CQRS pattern.
+ * Commands represent an intention to change the system state.
+ * 
+ * @param <R> The type of result returned by the command
  */
-public interface Command extends Serializable {
-
+public interface Command<R> {
     /**
-     * Gets the command identifier.
-     * This can be used for logging, tracing, or idempotency checks.
-     *
-     * @return the command identifier
+     * Get the unique identifier for this command.
+     * Default implementation generates a new UUID for each command.
+     * 
+     * @return The command ID
      */
-    String getCommandId();
-
+    default UUID getCommandId() {
+        return UUID.randomUUID();
+    }
+    
     /**
-     * Gets the name of the command.
-     * By default, this is the simple name of the command class.
-     *
-     * @return the command name
+     * Get the name of this command.
+     * Default implementation uses the simple class name.
+     * 
+     * @return The command name
      */
     default String getCommandName() {
         return this.getClass().getSimpleName();

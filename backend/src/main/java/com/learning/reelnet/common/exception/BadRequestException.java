@@ -4,38 +4,38 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Ngoại lệ khi yêu cầu không hợp lệ.
- * Được sử dụng khi dữ liệu đầu vào không đáp ứng các yêu cầu nghiệp vụ.
+ * Exception for invalid requests.
+ * Used when input data does not meet business requirements.
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestException extends RuntimeException {
 
     /**
-     * Mã lỗi
+     * Error code
      */
     private String errorCode;
 
     /**
-     * Constructor mặc định
+     * Default constructor
      */
     public BadRequestException() {
-        super("Yêu cầu không hợp lệ");
+        super("Invalid request");
     }
 
     /**
-     * Constructor với thông báo
+     * Constructor with message
      *
-     * @param message Thông báo lỗi
+     * @param message Error message
      */
     public BadRequestException(String message) {
         super(message);
     }
 
     /**
-     * Constructor với thông báo và mã lỗi
+     * Constructor with message and error code
      *
-     * @param message Thông báo lỗi
-     * @param errorCode Mã lỗi
+     * @param message Error message
+     * @param errorCode Error code
      */
     public BadRequestException(String message, String errorCode) {
         super(message);
@@ -43,21 +43,21 @@ public class BadRequestException extends RuntimeException {
     }
 
     /**
-     * Constructor với thông báo và nguyên nhân
+     * Constructor with message and cause
      *
-     * @param message Thông báo lỗi
-     * @param cause Nguyên nhân
+     * @param message Error message
+     * @param cause The cause
      */
     public BadRequestException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructor với thông báo, mã lỗi và nguyên nhân
+     * Constructor with message, error code and cause
      *
-     * @param message Thông báo lỗi
-     * @param errorCode Mã lỗi
-     * @param cause Nguyên nhân
+     * @param message Error message
+     * @param errorCode Error code
+     * @param cause The cause
      */
     public BadRequestException(String message, String errorCode, Throwable cause) {
         super(message, cause);
@@ -65,11 +65,11 @@ public class BadRequestException extends RuntimeException {
     }
 
     /**
-     * Lấy mã lỗi
+     * Get the error code
      *
-     * @return Mã lỗi
+     * @return Error code
      */
     public String getErrorCode() {
         return errorCode;
     }
-} 
+}

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Interface cơ sở cho mapper giữa Entity và DTO
+ * Base interface for mapping between Entity and DTO
  * 
  * @param <E> Entity
  * @param <D> DTO
@@ -12,35 +12,35 @@ import java.util.stream.Collectors;
 public interface BaseMapper<E, D> {
 
     /**
-     * Chuyển đổi từ Entity sang DTO
+     * Convert from Entity to DTO
      * 
-     * @param entity Entity cần chuyển đổi
-     * @return DTO tương ứng
+     * @param entity Entity to be converted
+     * @return Corresponding DTO
      */
     D toDto(E entity);
     
     /**
-     * Chuyển đổi từ DTO sang Entity
+     * Convert from DTO to Entity
      * 
-     * @param dto DTO cần chuyển đổi
-     * @return Entity tương ứng
+     * @param dto DTO to be converted
+     * @return Corresponding Entity
      */
     E toEntity(D dto);
     
     /**
-     * Cập nhật Entity từ DTO
+     * Update Entity from DTO
      * 
-     * @param dto DTO chứa thông tin cập nhật
-     * @param entity Entity cần cập nhật
-     * @return Entity đã được cập nhật
+     * @param dto DTO containing update information
+     * @param entity Entity to be updated
+     * @return Updated entity
      */
     E updateEntityFromDto(D dto, E entity);
     
     /**
-     * Chuyển đổi danh sách Entity thành danh sách DTO
+     * Convert list of Entities to list of DTOs
      * 
-     * @param entities Danh sách Entity
-     * @return Danh sách DTO
+     * @param entities List of Entities
+     * @return List of DTOs
      */
     default List<D> toDtoList(List<E> entities) {
         if (entities == null) {
@@ -52,10 +52,10 @@ public interface BaseMapper<E, D> {
     }
     
     /**
-     * Chuyển đổi danh sách DTO thành danh sách Entity
+     * Convert list of DTOs to list of Entities
      * 
-     * @param dtos Danh sách DTO
-     * @return Danh sách Entity
+     * @param dtos List of DTOs
+     * @return List of Entities
      */
     default List<E> toEntityList(List<D> dtos) {
         if (dtos == null) {
@@ -65,4 +65,4 @@ public interface BaseMapper<E, D> {
                 .map(this::toEntity)
                 .collect(Collectors.toList());
     }
-} 
+}

@@ -1,24 +1,31 @@
 package com.learning.reelnet.common.application.cqrs.command;
 
 /**
- * Base interface for all command handlers in the application.
- * Command handlers are responsible for processing commands and applying
- * the necessary changes to the domain model.
- * <p>
- * In the Command pattern (part of CQRS), each command type typically has
- * a corresponding command handler that knows how to process it.
- *
- * @param <T> the type of command this handler can process
- * @param <R> the type of result produced by handling the command
+ * Interface for command handlers in CQRS pattern.
+ * A command handler is responsible for executing the business logic
+ * associated with a specific command and returning a result.
+ * 
+ * @param <R> The type of result returned by the command
+ * @param <C> The type of command to handle
  */
-public interface CommandHandler<T extends Command, R> {
-
+public interface CommandHandler<R, C extends Command<R>> {
     /**
-     * Handles the given command and produces a result.
-     *
-     * @param command the command to handle
-     * @return the result of handling the command
-     * @throws Exception if an error occurs while handling the command
+     * Handles the command and returns a result.
+     * This method contains the business logic for processing the command.
+     * 
+     * @param command The command to handle
+     * @return The result of handling the command
+     * @throws Exception If an error occurs during command processing
      */
-    R handle(T command) throws Exception;
+    R handle(C command) throws Exception;
+    
+    /**
+     * Get the command class this handler can process.
+     * Default implementation uses generic type inference.
+     * 
+     * @return The class of commands this handler can process
+     */
+    default Class<C> getCommandClass() {
+        throw new UnsupportedOperationException("Command handlers must override getCommandClass() method");
+    }
 } 

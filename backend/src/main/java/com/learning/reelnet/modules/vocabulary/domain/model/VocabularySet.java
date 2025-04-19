@@ -70,10 +70,15 @@ public class VocabularySet extends BaseEntity<UUID> {
     @Builder.Default
     private boolean isSystem = false;
 
-    // Cần bổ sung quan hệ với Vocabulary thông qua VocabularySetItem
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<UUID> vocabularyIds = new HashSet<>();
+
     @OneToMany(mappedBy = "vocabularySet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<VocabularySetItem> vocabularyItems = new HashSet<>();
+
+    // Cần bổ sung quan hệ với Vocabulary thông qua VocabularySetItem
 
     public enum Visibility {
         PRIVATE, // Chỉ người tạo có thể xem
@@ -104,6 +109,16 @@ public class VocabularySet extends BaseEntity<UUID> {
         SPORTS,
         ENTERTAINMENT,
         SOCIAL_MEDIA,
+        CULTURE,
+        HISTORY,
+        GEOGRAPHY,
+        LANGUAGE,
+        PSYCHOLOGY,
+        PHILOSOPHY,
+        RELIGION,
+        POLITICS,
+        TECHNICAL,
+        FINANCE,
         ENVIRONMENT,
         EDUCATION,
         DAILY_CONVERSATION,

@@ -22,10 +22,12 @@ import lombok.Getter;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "vocabulary")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

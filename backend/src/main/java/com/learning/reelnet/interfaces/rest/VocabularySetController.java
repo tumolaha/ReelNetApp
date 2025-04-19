@@ -37,10 +37,10 @@ public class VocabularySetController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create a new vocabulary set", description = "Creates a new vocabulary set with the provided information")
-    public ApiResponse<VocabularySetDto> createVocabularySet(
-            @Valid @RequestBody VocabularySetDto.CreateRequest createRequest) {
+    public ApiResponse<Optional<VocabularySetDto>> createVocabularySet(
+            @Valid @RequestBody VocabularySetDto.CreateRequest createRequest) throws Exception {
         log.info("Creating a new vocabulary set");
-        VocabularySetDto newSet = vocabularySetFacade.createVocabularySet(createRequest);
+        Optional<VocabularySetDto> newSet = vocabularySetFacade.createVocabularySet(createRequest);
         return ApiResponse.success(newSet, "Vocabulary set created successfully");
     }
 
@@ -90,7 +90,7 @@ public class VocabularySetController {
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get vocabulary set by ID", description = "Retrieves a vocabulary set by its ID if the user has access to it")
-    public ApiResponse<VocabularySetDto> getVocabularySetById(@PathVariable UUID id) {
+    public ApiResponse<VocabularySetDto> getVocabularySetById(@PathVariable UUID id) throws ResourceNotFoundException, Exception {
         log.info("Retrieving vocabulary set with ID: {}", id);
         VocabularySetDto vocabularySet = vocabularySetFacade.getVocabularySetById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vocabulary set not found with ID: " + id));
@@ -127,6 +127,7 @@ public class VocabularySetController {
 
         return ApiResponse.success(result, "Vocabulary sets retrieved successfully");
     }
+
     /*
      * add vocabulary to set
      * 
@@ -143,12 +144,14 @@ public class VocabularySetController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
-        
+
         log.info("Retrieving vocabulary sets for current user");
-        
-        // var result = vocabularySetFacade.getMyVocabularySets(null); // TODO: implement a proper PageRequest
+
+        // var result = vocabularySetFacade.getMyVocabularySets(null); // TODO:
+        // implement a proper PageRequest
         return ApiResponse.success(null, "User vocabulary sets retrieved successfully");
     }
+
     /*
      * get public vocabulary sets
      * 
@@ -162,9 +165,9 @@ public class VocabularySetController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
-        
+
         log.info("Retrieving public vocabulary sets");
-        
+
         var result = vocabularySetFacade.getPublicVocabularySets(null); // TODO: implement a proper PageRequest
         return ApiResponse.success(result, "Public vocabulary sets retrieved successfully");
     }
