@@ -6,9 +6,11 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-
+import org.springframework.stereotype.Repository;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
 
+
+@Repository
 public interface SpringDataVocabularySetItemRepository
         extends JpaRepository<VocabularySetItem, UUID>, JpaSpecificationExecutor<VocabularySetItem> {
     /*

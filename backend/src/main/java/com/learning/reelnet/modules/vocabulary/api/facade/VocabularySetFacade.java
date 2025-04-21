@@ -5,11 +5,12 @@ import java.util.UUID;
 
 import org.springdoc.core.converters.models.Pageable;
 import org.springframework.data.domain.Page;
-
+import com.learning.reelnet.common.api.query.FilterParams;
+import com.learning.reelnet.common.api.query.QueryParams;
+import com.learning.reelnet.common.api.query.SearchParams;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Category;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.DifficultyLevel;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Visibility;
 
 /**
  * Facade for vocabulary set operations
@@ -17,32 +18,40 @@ import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Visibi
 public interface VocabularySetFacade {
         /**
          * Tạo mới bộ từ vựng
-         * @throws Exception 
+         * 
+         * @throws Exception
          */
         Optional<VocabularySetDto> createVocabularySet(VocabularySetDto.CreateRequest createRequest) throws Exception;
 
         /**
          * Lấy thông tin bộ từ vựng theo ID
-         * @throws Exception 
+         * 
+         * @throws Exception
          */
         Optional<VocabularySetDto> getVocabularySetById(UUID id) throws Exception;
 
         /**
          * Cập nhật bộ từ vựng
+         * 
+         * @throws Exception
          */
-        Optional<VocabularySetDto> updateVocabularySet(UUID id, VocabularySetDto.UpdateRequest updateRequest);
+        Optional<VocabularySetDto> updateVocabularySet(UUID id, VocabularySetDto.UpdateRequest updateRequest)
+                        throws Exception;
 
         /**
          * Xóa bộ từ vựng
+         * 
+         * @throws Exception
          */
-        boolean deleteVocabularySet(UUID id);
+        Boolean deleteVocabularySet(UUID id) throws Exception;
 
         /**
          * Tìm kiếm bộ từ vựng
          */
         Page<VocabularySetDto> searchVocabularySets(
-                        String query, Category category, DifficultyLevel difficulty,
-                        Visibility visibility, Pageable pageable);
+                        FilterParams filterParams,
+                        QueryParams queryParams,
+                        SearchParams searchParams) throws Exception;
 
         /**
          * Lấy danh sách bộ từ vựng của người dùng
@@ -93,7 +102,7 @@ public interface VocabularySetFacade {
          * Lấy danh sách bộ từ vựng theo mức độ khó
          */
         Page<VocabularySetDto> getVocabularySetsByDifficulty(DifficultyLevel difficultyLevel, Pageable pageable);
-        
+
         /**
          * Lấy danh sách bộ từ vựng theo độ phổ biến
          */

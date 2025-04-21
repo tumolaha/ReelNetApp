@@ -7,10 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.learning.reelnet.common.api.query.utils.QuerySpecificationRepository;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
 
 /**
@@ -18,26 +21,26 @@ import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
  * Chỉ chứa các query methods đơn giản
  */
 @Repository
-public interface SpringDataVocabularySetRepository extends JpaRepository<VocabularySet, UUID>, JpaSpecificationExecutor<VocabularySet> {
+public interface SpringDataVocabularySetRepository extends QuerySpecificationRepository<VocabularySet, UUID> {
 
         // Tìm kiếm theo nhiều điều kiện, phân trang, sắp xếp, ... sẽ được thực hiện
         @Query("SELECT vs FROM VocabularySet vs WHERE vs.name LIKE %:criteria% OR vs.description LIKE %:criteria%")
-        List<VocabularySet> findByCriteria(String criteria); // Method signature only, implementation should be in the
+        List<VocabularySet> findByCriteria(String criteria);
 
         /*
-         * * Tìm kiếm theo ID của người dùng
+         * * Tìm kiếm theo ID của người tạo
          */
-        @Query("SELECT vs FROM VocabularySet vs WHERE vs.userId = :userId")
+        @Query("SELECT vs FROM VocabularySet vs WHERE vs.createdBy = :userId")
         List<VocabularySet> findByUserId(String userId);
 
         /*
-         * * Tìm kiếm theo độ khó
+         * * Tìm kiếm theo visibility và người tạo
          */
-        @Query("SELECT vs FROM VocabularySet vs WHERE vs.visibility = :visibility AND vs.userId = :userId")
+        @Query("SELECT vs FROM VocabularySet vs WHERE vs.visibility = :visibility AND vs.createdBy = :userId")
         List<VocabularySet> findByVisibilityAndUserId(String visibility, String userId);
 
         /*
-         * * Tìm kiếm theo tên
+         * * Tìm kiếm theo người tạo
          */
         @Query("SELECT vs FROM VocabularySet vs WHERE vs.createdBy LIKE %:createdBy%")
         List<VocabularySet> findByCreatedBy(String createdBy);
@@ -81,4 +84,43 @@ public interface SpringDataVocabularySetRepository extends JpaRepository<Vocabul
                         @Param("visibility") VocabularySet.Visibility visibility,
                         Pageable pageable);
 
+        /*
+         * Xóa tất cả vocabulary set của một user
+         */
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM VocabularySet vs WHERE vs.createdBy = :userId")
+        void deleteAllByUserId(String userId);
+
+        /*
+         * Xóa vocabulary set theo category
+         */
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM VocabularySet vs WHERE vs.category = :category")
+        void deleteByCategory(VocabularySet.Category category);
+
+        /*
+         * Xóa vocabulary set không active trong một thời gian
+         */
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM VocabularySet vs WHERE vs.isActive = false AND vs.updatedAt < :date")
+        void deleteInactiveOlderThan(@Param("date") java.time.LocalDateTime date);
+
+        /*
+         * Soft delete - cập nhật trạng thái isActive thành false
+         */
+        @Modifying
+        @Transactional
+        @Query("UPDATE VocabularySet vs SET vs.isActive = false WHERE vs.id = :id")
+        void softDelete(@Param("id") UUID id);
+
+        /*
+         * Khôi phục vocabulary set đã soft delete
+         */
+        @Modifying
+        @Transactional
+        @Query("UPDATE VocabularySet vs SET vs.isActive = true WHERE vs.id = :id")
+        void restore(@Param("id") UUID id);
 }

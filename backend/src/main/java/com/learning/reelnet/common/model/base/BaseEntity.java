@@ -27,10 +27,11 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
     private static final long serialVersionUID = 1L;
     
     /**
-     * Auto-incremented ID
+     * UUID-based ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "UUID")
     private ID id;
     
     /**
@@ -66,7 +67,7 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
      */
     @Version
     @Column(name = "version")
-    private Long version;
+    private Long version = 0L;
     
     /**
      * Flag for soft delete

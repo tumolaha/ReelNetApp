@@ -52,8 +52,22 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/public/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .anyRequest().permitAll() // In development, allow all requests
+                .requestMatchers(
+                    "/api/public/**",
+                    "/api/v3/api-docs/**",
+                    "/api/v3/api-docs.yaml",
+                    "/api/swagger-ui/**",
+                    "/api/swagger-ui.html",
+                    "/api/swagger-resources/**",
+                    "/api/webjars/**",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
+                .anyRequest().permitAll()
             )
             .addFilter(corsFilter);
         
@@ -76,7 +90,21 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/public/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers(
+                    "/api/public/**",
+                    "/api/v3/api-docs/**",
+                    "/api/v3/api-docs.yaml",
+                    "/api/swagger-ui/**",
+                    "/api/swagger-ui.html",
+                    "/api/swagger-resources/**",
+                    "/api/webjars/**",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

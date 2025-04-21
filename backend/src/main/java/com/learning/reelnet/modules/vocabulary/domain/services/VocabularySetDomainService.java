@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Domain Service handling complex business logic related to VocabularySet
@@ -176,13 +177,19 @@ public class VocabularySetDomainService {
      */
     private double calculateOverlapRatio(VocabularySet set1, VocabularySet set2) {
         if (set1 == null || set2 == null || 
-            set1.getVocabularyIds() == null || set2.getVocabularyIds() == null ||
-            set1.getVocabularyIds().isEmpty() || set2.getVocabularyIds().isEmpty()) {
+            set1.getVocabularyItems() == null || set2.getVocabularyItems() == null ||
+            set1.getVocabularyItems().isEmpty() || set2.getVocabularyItems().isEmpty()) {
             return 0.0;
         }
         
-        Set<UUID> ids1 = new HashSet<>(set1.getVocabularyIds());
-        Set<UUID> ids2 = new HashSet<>(set2.getVocabularyIds());
+        // Get vocabulary IDs from VocabularySetItems
+        Set<UUID> ids1 = set1.getVocabularyItems().stream()
+            .map(item -> item.getVocabulary().getId())
+            .collect(Collectors.toSet());
+            
+        Set<UUID> ids2 = set2.getVocabularyItems().stream()
+            .map(item -> item.getVocabulary().getId())
+            .collect(Collectors.toSet());
         
         // Find common vocabulary
         Set<UUID> intersection = new HashSet<>(ids1);

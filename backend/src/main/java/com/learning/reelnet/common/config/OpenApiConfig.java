@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,5 +57,17 @@ public class OpenApiConfig {
                                         .in(SecurityScheme.In.HEADER)
                                         .name("Authorization")))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"));
+    }
+
+    @Bean
+    public OpenApiCustomizer openApiCustomizer() {
+        return openApi -> {
+            // Add global security requirement
+            openApi.getPaths().values().forEach(pathItem -> {
+                pathItem.readOperations().forEach(operation -> {
+                    operation.addSecurityItem(new SecurityRequirement().addList("bearer-jwt"));
+                });
+            });
+        };
     }
 }

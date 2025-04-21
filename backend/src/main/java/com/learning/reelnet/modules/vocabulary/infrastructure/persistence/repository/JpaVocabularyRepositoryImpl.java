@@ -4,11 +4,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.stereotype.Repository;
+
 import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
 
 import lombok.AllArgsConstructor;
 
+
+@Repository
 @AllArgsConstructor
 public class JpaVocabularyRepositoryImpl implements VocabularyRepository {
     private final SpringDataVocabularyRepository springDataVocabularyRepository;

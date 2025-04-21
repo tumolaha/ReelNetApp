@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * Mapper cho VocabularySet, chuyển đổi giữa entity và DTO
  */
-@Component
+@Component("vocabularySetMapper")
 public class VocabularySetMapper implements BaseMapper<VocabularySet, VocabularySetDto> {
 
     @Override
@@ -96,4 +96,7 @@ public class VocabularySetMapper implements BaseMapper<VocabularySet, Vocabulary
         
         return entity;
     }
+
+    
+
 }

@@ -3,12 +3,14 @@ package com.learning.reelnet.modules.vocabulary.infrastructure.persistence.repos
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.stereotype.Repository;
+
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
 
 import lombok.AllArgsConstructor;
 
-
+@Repository
 @AllArgsConstructor
 public class JpaVocabularySetItemRepositoryImpl implements VocabularySetItemRepository {
     private final SpringDataVocabularySetItemRepository springDataVocabularySetItemRepository;

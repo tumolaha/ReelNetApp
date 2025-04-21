@@ -8,6 +8,10 @@ import com.learning.reelnet.common.api.query.SearchParams;
 import com.learning.reelnet.common.api.query.QueryParams;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
 
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Repository;
+
+@Repository
 public interface VocabularySetRepository {
     // Contains more complex query methods
     List<VocabularySet> findByCriteria(String criteria); // Method signature only, implementation should be in the
@@ -18,7 +22,7 @@ public interface VocabularySetRepository {
 
     void deleteById(UUID id); // Method signature only, implementation should be in the service layer
 
-    List<VocabularySet> findAll(QueryParams queryParam, FilterParams filterParams, SearchParams searchParams); // Method
+    Page<VocabularySet> findAll(QueryParams queryParam, FilterParams filterParams, SearchParams searchParams); // Method
                                                                                                                // signature
                                                                                                                // //
                                                                                                                // layer

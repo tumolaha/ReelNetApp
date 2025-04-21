@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public interface VocabularySetItemRepository {
     /**
      * Save a list of VocabularySetItems to the database.

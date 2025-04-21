@@ -6,6 +6,9 @@ import java.util.UUID;
 
 import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public interface VocabularyRepository {
 
     /*

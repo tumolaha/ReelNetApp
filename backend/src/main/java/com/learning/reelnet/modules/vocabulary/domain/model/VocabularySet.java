@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.learning.reelnet.common.api.query.annotation.SupportedParams;
 import com.learning.reelnet.common.model.base.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -26,7 +27,18 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @Builder
+@SupportedParams(
+    allowedSortFields = {"id", "name", "createdAt", "updatedAt", "viewCount", "likeCount", "difficultyLevel"},
+    allowedFilterFields = {"visibility", "category", "difficultyLevel", "createdBy", "isActive", "isSystem"},
+    allowedSearchFields = {"name", "description"},
+    maxPageSize = 50
+)
 public class VocabularySet extends BaseEntity<UUID> {
+
+    // No-args constructor
+    public VocabularySet() {
+        super();
+    }
 
     @Column(nullable = false)
     private String name;
@@ -69,10 +81,6 @@ public class VocabularySet extends BaseEntity<UUID> {
     @Column(name = "is_system")
     @Builder.Default
     private boolean isSystem = false;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<UUID> vocabularyIds = new HashSet<>();
 
     @OneToMany(mappedBy = "vocabularySet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

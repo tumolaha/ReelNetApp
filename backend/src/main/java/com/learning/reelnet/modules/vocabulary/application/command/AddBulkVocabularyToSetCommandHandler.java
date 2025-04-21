@@ -13,7 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
+@Component("addBulkVocabularyToSetCommandHandler")
 @RequiredArgsConstructor
 @Slf4j
 public class AddBulkVocabularyToSetCommandHandler implements CommandHandler<Integer, AddBulkVocabularyToSetCommand> {
