@@ -11,6 +11,12 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
+	
+	// Enable parameter name retention for Spring DI
+	withSourcesJar()
+	compileJava {
+		options.compilerArgs.add('-parameters')
+	}
 }
 
 configurations {

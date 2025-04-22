@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,10 +45,10 @@ public class VocabularySetApplicationService {
      * Create a new vocabulary set
      *
      * @param vocabularySetDto Information of the vocabulary set to create
-     * @return Created VocabularySetDto
+     * @return Created VocabularySet
      */
     @Transactional
-    public VocabularySetDto createVocabularySet(VocabularySetDto vocabularySetDto) {
+    public VocabularySet createVocabularySet(VocabularySetDto vocabularySetDto) {
         log.info("Creating vocabulary set: {}", vocabularySetDto);
 
         // Convert from DTO to entity
@@ -68,10 +67,7 @@ public class VocabularySetApplicationService {
         vocabularySet.setUpdatedAt(now);
 
         // Save vocabulary set
-        VocabularySet savedSet = vocabularySetRepository.save(vocabularySet);
-
-        // Convert result back to DTO
-        return vocabularySetMapper.toDto(savedSet);
+        return vocabularySetRepository.save(vocabularySet);
     }
 
     /**
@@ -79,10 +75,10 @@ public class VocabularySetApplicationService {
      *
      * @param id               ID of the vocabulary set
      * @param vocabularySetDto Update information
-     * @return Updated VocabularySetDto
+     * @return Updated VocabularySet
      */
     @Transactional
-    public VocabularySetDto updateVocabularySet(VocabularySetDto vocabularySetDto) {
+    public VocabularySet updateVocabularySet(VocabularySetDto vocabularySetDto) {
         log.info("Updating vocabulary set with id: {}", vocabularySetDto.getId());
 
         // Find existing vocabulary set
@@ -92,20 +88,17 @@ public class VocabularySetApplicationService {
         VocabularySet updatedSet = vocabularySetMapper.updateEntityFromDto(vocabularySetDto, existingSet);
 
         // Save updated vocabulary set
-        VocabularySet savedSet = vocabularySetRepository.save(updatedSet);
-
-        // Convert result back to DTO
-        return vocabularySetMapper.toDto(savedSet);
+        return vocabularySetRepository.save(updatedSet);
     }
 
     /**
      * Get vocabulary set by ID
      *
      * @param id ID of the vocabulary set
-     * @return VocabularySetDto
+     * @return VocabularySet
      */
     @Transactional(readOnly = true)
-    public VocabularySetDto getVocabularySetById(UUID id) {
+    public VocabularySet getVocabularySetById(UUID id) {
         log.info("Getting vocabulary set with id: {}", id);
 
         VocabularySet vocabularySet = vocabularySetRepository.findById(id);
@@ -113,13 +106,14 @@ public class VocabularySetApplicationService {
             throw new ResourceNotFoundException("Vocabulary set not found with id: " + id);
         }
 
-        return vocabularySetMapper.toDto(vocabularySet);
+        return vocabularySet;
     }
 
     /**
      * Delete vocabulary set
      *
      * @param id ID of the vocabulary set
+     * @return Deleted VocabularySet
      */
     @Transactional
     public void deleteVocabularySet(UUID id) {
@@ -139,10 +133,10 @@ public class VocabularySetApplicationService {
      * @param queryParams  Pagination and sorting information
      * @param filterParams Filter information
      * @param searchParams Search information
-     * @return List of VocabularySetDto
+     * @return List of VocabularySet
      */
     @Transactional(readOnly = true)
-    public Page<VocabularySetDto> getAllVocabularySets(
+    public Page<VocabularySet> getAllVocabularySets(
             QueryParams queryParams,
             FilterParams filterParams,
             SearchParams searchParams) {
@@ -152,12 +146,8 @@ public class VocabularySetApplicationService {
         validator.validateAll(queryParams, filterParams, searchParams, VocabularySet.class);
         Page<VocabularySet> vocabularySets = vocabularySetRepository.findAll(queryParams, filterParams, searchParams);
 
-        List<VocabularySetDto> vocabularySetDtos = vocabularySets.getContent().stream()
-                .map(vocabularySetMapper::toDto)
-                .toList();
-
         // Create and return the Page object
-        return new PageImpl<>(vocabularySetDtos, vocabularySets.getPageable(), vocabularySets.getTotalElements());
+        return vocabularySets;
     }
 
     /**
@@ -166,57 +156,53 @@ public class VocabularySetApplicationService {
      * @param queryParams  Pagination and sorting information
      * @param filterParams Filter information
      * @param searchParams Search information
-     * @return List of VocabularySetDto
+     * @return List of VocabularySet
      */
     @Transactional(readOnly = true)
-    public Page<VocabularySetDto> findVocabularySets(
+    public Page<VocabularySet> findVocabularySets(
             QueryParams queryParams,
             FilterParams filterParams,
             SearchParams searchParams) {
 
         log.info("Finding vocabulary sets with query: {}, filter: {}, search: {}",
                 queryParams, filterParams, searchParams);
-
+        validator.validateAll(queryParams, filterParams, searchParams, VocabularySet.class);
         Page<VocabularySet> vocabularySets = vocabularySetRepository.findAll(queryParams, filterParams, searchParams);
-        List<VocabularySetDto> vocabularySetDtos = vocabularySets.getContent().stream()
-                .map(vocabularySetMapper::toDto)
-                .toList();
 
-        return new PageImpl<>(vocabularySetDtos, vocabularySets.getPageable(), vocabularySets.getTotalElements());
+        return vocabularySets;
     }
 
     /**
      * Find vocabulary sets by creator
      *
      * @param userId ID of the creator
-     * @return List of VocabularySetDto
+     * @return List of VocabularySet
      */
     @Transactional(readOnly = true)
-    public List<VocabularySetDto> findVocabularySetsByCreatedBy(String userId) {
+    public List<VocabularySet> findVocabularySetsByCreatedBy(String userId) {
         log.info("Finding vocabulary sets created by user: {}", userId);
 
         List<VocabularySet> vocabularySets = vocabularySetRepository.findByUserId(userId);
 
-        return vocabularySetMapper.toDtoList(vocabularySets);
+        return vocabularySets;
     }
 
     /**
      * Find public vocabulary sets
      *
      * @param queryParams Pagination and sorting information
-     * @return List of VocabularySetDto
+     * @return List of VocabularySet
      */
     @Transactional(readOnly = true)
-    public Page<VocabularySetDto> findPublicVocabularySets(QueryParams queryParams) {
+    public Page<VocabularySet> findPublicVocabularySets(QueryParams queryParams) {
         log.info("Finding public vocabulary sets");
 
         // Create filter param for visibility=PUBLIC
         FilterParams filterParams = new FilterParams();
-        // filterParams.addFilter("visibility", FilterOperation.EQUALS, "PUBLIC");
+        filterParams.addFilter("visibility", "", "PUBLIC");
 
         Page<VocabularySet> vocabularySets = vocabularySetRepository.findAll(queryParams, filterParams, null);
-        return new PageImpl<>(vocabularySetMapper.toDtoList(vocabularySets.getContent()), vocabularySets.getPageable(),
-                vocabularySets.getTotalElements());
+        return vocabularySets;
     }
 
     /**

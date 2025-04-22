@@ -1,7 +1,6 @@
 package com.learning.reelnet.modules.vocabulary.infrastructure.persistence.repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;

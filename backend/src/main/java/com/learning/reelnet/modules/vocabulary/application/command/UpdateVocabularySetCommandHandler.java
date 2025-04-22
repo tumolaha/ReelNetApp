@@ -1,7 +1,5 @@
 package com.learning.reelnet.modules.vocabulary.application.command;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
 
 import com.learning.reelnet.common.application.cqrs.command.CommandHandler;

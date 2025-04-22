@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 import com.learning.reelnet.common.application.cqrs.query.QueryHandler;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.api.query.GetAllVocabularySetQuery;
+import com.learning.reelnet.modules.vocabulary.application.mapper.VocabularySetMapper;
 import com.learning.reelnet.modules.vocabulary.application.services.VocabularySetApplicationService;
+import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
 
 import lombok.AllArgsConstructor;
 
@@ -15,11 +17,15 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetAllVocabularySetQueryHandler implements QueryHandler<Page<VocabularySetDto>, GetAllVocabularySetQuery> {
     private final VocabularySetApplicationService vocabularySetApplicationService;
-
+    private final VocabularySetMapper vocabularySetMapper;
     @Override
     public Page<VocabularySetDto> handle(GetAllVocabularySetQuery query) {
-        return vocabularySetApplicationService.getAllVocabularySets(query.getQueryParams(), query.getFilterParams(),
+        
+        
+        
+        Page<VocabularySet> vocabularySets = vocabularySetApplicationService.getAllVocabularySets(query.getQueryParams(), query.getFilterParams(),
                 query.getSearchParams());
+        return vocabularySetMapper.toDtoPage(vocabularySets);
     }
 
 }

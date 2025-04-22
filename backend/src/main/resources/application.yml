@@ -40,7 +40,7 @@ spring:
   # JPA Configuration  
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -153,11 +153,9 @@ springdoc:
   default-produces-media-type: application/json
   default-consumes-media-type: application/json
   paths-to-match: 
-    - /api/**
-    - /auth/**
+    - /**
   packages-to-scan: 
-    - com.learning.reelnet.modules
-    - com.learning.reelnet.interfaces.rest
+    - com.learning.reelnet
   show-actuator: false
   writer-with-default-pretty-printer: true
   model-and-view-allowed: false
@@ -196,6 +194,30 @@ app:
   api:
     problem-base-url: https://api.reelnet.com/problems
     version: v1
+  
+  # Application Version
+  version: 1.0.0
+  
+  # Rate Limit Configuration
+  rate-limit:
+    enabled: true
+    cache-name: rateLimitCache
+    limits:
+      default:
+        capacity: 50
+        refill-tokens: 50
+        refill-duration: 1
+        refill-time-unit: MINUTES
+      api:
+        capacity: 100
+        refill-tokens: 100
+        refill-duration: 1
+        refill-time-unit: MINUTES
+      auth:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration: 1
+        refill-time-unit: MINUTES
   
   # Pagination Configuration
   pagination:

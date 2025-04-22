@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning.reelnet.common.api.query.FilterParams;
 import com.learning.reelnet.common.api.query.QueryParams;
 import com.learning.reelnet.common.api.query.SearchParams;
@@ -29,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/vocabulary-sets")
+@RequestMapping("/v1/vocabulary-sets")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Vocabulary Sets", description = "API endpoints for managing vocabulary sets")
