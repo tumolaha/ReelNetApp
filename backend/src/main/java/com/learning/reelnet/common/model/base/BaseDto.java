@@ -6,10 +6,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Lớp cơ sở cho các DTO trong hệ thống.
- * Cung cấp các trường chung cho tất cả các DTO như id, thông tin audit.
+ * Base class for DTOs in the system.
+ * Provides common fields for all DTOs such as id, audit information.
  * 
- * @param <ID> Kiểu dữ liệu của khóa chính
+ * @param <ID> Data type of the primary key
  */
 @Getter
 @Setter
@@ -18,32 +18,32 @@ public abstract class BaseDto<ID extends Serializable> implements Serializable {
     private static final long serialVersionUID = 1L;
     
     /**
-     * ID của đối tượng
+     * Object ID
      */
     private ID id;
     
     /**
-     * Thời điểm tạo
+     * Creation timestamp
      */
     private LocalDateTime createdAt;
     
     /**
-     * Người tạo
+     * Created by user
      */
     private String createdBy;
     
     /**
-     * Thời điểm cập nhật gần nhất
+     * Last update timestamp
      */
     private LocalDateTime updatedAt;
     
     /**
-     * Người cập nhật gần nhất
+     * Last updated by user
      */
     private String updatedBy;
     
     /**
-     * Đánh dấu đã xóa hay chưa (soft delete)
+     * Flag for soft delete
      */
     private Boolean deleted = false;
 } 

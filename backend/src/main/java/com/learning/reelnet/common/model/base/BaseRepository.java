@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.lang.NonNull;
 
+import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
+
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * Base repository interface with common functionality for all repositories.
@@ -23,7 +26,7 @@ public interface BaseRepository<T extends BaseEntity<ID>, ID extends Serializabl
      * @param id the entity ID
      * @return the entity, or null if not found
      */
-    T findByIdAndLock(ID id);
+    Optional<VocabularySet> findByIdAndLock(ID id);
 
     /**
      * Checks if an entity with the given ID exists.

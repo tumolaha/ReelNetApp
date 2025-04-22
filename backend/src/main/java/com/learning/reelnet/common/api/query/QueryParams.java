@@ -1,93 +1,52 @@
 package com.learning.reelnet.common.api.query;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 
-/**
- * Lớp tổng hợp quản lý các tham số truy vấn bao gồm phân trang và sắp xếp.
- * Kết hợp các chức năng của PaginationParams và SortParams.
- */
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class QueryParams {
-
-    /**
-     * Tham số phân trang
-     */
-    private PaginationParams pagination = new PaginationParams();
-
-    /**
-     * Tham số sắp xếp
-     */
-    private SortParams sort = new SortParams();
-
-    /**
-     * Tạo Pageable object cho Spring Data với sắp xếp
-     *
-     * @return Pageable object
-     */
+    @Builder.Default
+    private int page = 0;
+    
+    @Builder.Default
+    private int size = 10;
+    
+    @Builder.Default
+    private String sortBy = "createdAt";
+    
+    @Builder.Default
+    private String sortDirection = "DESC";
+    
+    private Long totalElements;
+    private Integer totalPages;
+    
     public Pageable toPageable() {
-        if (!pagination.isPaginated()) {
-            return Pageable.unpaged();
+        // Xử lý sortDirection không hợp lệ
+        String direction = this.sortDirection;
+        if (direction == null || (!direction.equalsIgnoreCase("ASC") && !direction.equalsIgnoreCase("DESC"))) {
+            direction = "DESC"; // Giá trị mặc định nếu không hợp lệ
         }
-
-        Sort springSort = sort.toSort();
-        if (springSort.isUnsorted()) {
-            return PageRequest.of(pagination.getPage(), pagination.getLimit());
-        } else {
-            return PageRequest.of(pagination.getPage(), pagination.getLimit(), springSort);
-        }
+        
+        Sort sort = Sort.by(
+            Sort.Direction.fromString(direction), 
+            sortBy
+        );
+        
+        return PageRequest.of(page, size, sort);
     }
-
-    /**
-     * Tạo Pageable object cho Spring Data với sắp xếp giới hạn cho các trường cho phép
-     *
-     * @param allowedFields Danh sách các trường được phép sắp xếp
-     * @return Pageable object
-     */
-    public Pageable toPageable(String... allowedFields) {
-        if (!pagination.isPaginated()) {
-            return Pageable.unpaged();
-        }
-
-        Sort springSort = sort.toSort(allowedFields);
-        if (springSort.isUnsorted()) {
-            return PageRequest.of(pagination.getPage(), pagination.getLimit());
-        } else {
-            return PageRequest.of(pagination.getPage(), pagination.getLimit(), springSort);
-        }
+    
+    public void updatePaginationInfo(Long totalElements) {
+        this.totalElements = totalElements;
+        this.totalPages = (int) Math.ceil((double) totalElements / size);
     }
+}
 
-    /**
-     * Cập nhật thông tin phân trang sau khi truy vấn
-     *
-     * @param total Tổng số bản ghi
-     */
-    public void updatePaginationInfo(long total) {
-        int totalPages = pagination.getLimit() > 0 ? (int) Math.ceil((double) total / pagination.getLimit()) : 0;
-        pagination.updatePaginationInfo(total, totalPages);
-    }
 
-    /**
-     * Kiểm tra xem có áp dụng phân trang không
-     *
-     * @return true nếu áp dụng phân trang
-     */
-    public boolean isPaginationApplicable() {
-        return pagination.isPaginated();
-    }
-
-    /**
-     * Kiểm tra xem có áp dụng sắp xếp không
-     *
-     * @return true nếu áp dụng sắp xếp
-     */
-    public boolean hasSorting() {
-        return sort.hasSorting();
-    }
-} 

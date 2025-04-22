@@ -1,27 +1,27 @@
 package com.learning.reelnet.common.model.enums;
 
 /**
- * Enum định nghĩa các toán tử kết hợp điều kiện lọc.
- * Sử dụng khi cần kết hợp nhiều điều kiện lọc với nhau.
+ * Enum defining filter condition combination operators.
+ * Used when multiple filter conditions need to be combined.
  */
 public enum CombinationOperator {
     /**
-     * Toán tử VÀ - tất cả các điều kiện phải thỏa mãn
+     * AND operator - all conditions must be satisfied
      */
     AND("and", "AND"),
     
     /**
-     * Toán tử HOẶC - chỉ cần một điều kiện thỏa mãn
+     * OR operator - at least one condition must be satisfied
      */
     OR("or", "OR");
     
     /**
-     * Mã của toán tử
+     * Code of the operator
      */
     private final String code;
     
     /**
-     * Ký hiệu SQL tương ứng
+     * Corresponding SQL notation
      */
     private final String sqlOperator;
     
@@ -31,28 +31,28 @@ public enum CombinationOperator {
     }
     
     /**
-     * Lấy mã của toán tử
+     * Get the operator code
      * 
-     * @return Mã toán tử
+     * @return Operator code
      */
     public String getCode() {
         return code;
     }
     
     /**
-     * Lấy ký hiệu SQL tương ứng
+     * Get the corresponding SQL notation
      * 
-     * @return Ký hiệu SQL
+     * @return SQL notation
      */
     public String getSqlOperator() {
         return sqlOperator;
     }
     
     /**
-     * Tìm toán tử kết hợp theo mã
+     * Find combination operator by code
      * 
-     * @param code Mã toán tử
-     * @return Toán tử tương ứng, mặc định là AND nếu không tìm thấy
+     * @param code Operator code
+     * @return Corresponding operator, defaults to AND if not found
      */
     public static CombinationOperator fromCode(String code) {
         if (code == null) {
@@ -65,6 +65,6 @@ public enum CombinationOperator {
             }
         }
         
-        return AND; // Mặc định là AND nếu không tìm thấy
+        return AND; // Default to AND if not found
     }
-} 
+}

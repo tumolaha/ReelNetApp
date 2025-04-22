@@ -1,81 +1,81 @@
 package com.learning.reelnet.common.model.enums;
 
 /**
- * Enum định nghĩa các trạng thái chung được sử dụng trong hệ thống.
+ * Enum defining common statuses used in the system.
  */
 public enum Status {
     /**
-     * Trạng thái hoạt động
+     * Active status
      */
     ACTIVE("active", "Hoạt động"),
     
     /**
-     * Trạng thái không hoạt động
+     * Inactive status
      */
     INACTIVE("inactive", "Không hoạt động"),
     
     /**
-     * Trạng thái tạm khóa
+     * Suspended status
      */
     SUSPENDED("suspended", "Tạm khóa"),
     
     /**
-     * Trạng thái chờ duyệt
+     * Pending approval status
      */
     PENDING("pending", "Chờ duyệt"),
     
     /**
-     * Trạng thái đã duyệt
+     * Approved status
      */
     APPROVED("approved", "Đã duyệt"),
     
     /**
-     * Trạng thái từ chối
+     * Rejected status
      */
     REJECTED("rejected", "Từ chối"),
     
     /**
-     * Trạng thái nháp
+     * Draft status
      */
     DRAFT("draft", "Nháp"),
     
     /**
-     * Trạng thái đã xuất bản
+     * Published status
      */
     PUBLISHED("published", "Đã xuất bản"),
     
     /**
-     * Trạng thái đã xóa
+     * Deleted status
      */
     DELETED("deleted", "Đã xóa"),
     
     /**
-     * Trạng thái đã hoàn thành
+     * Completed status
      */
     COMPLETED("completed", "Đã hoàn thành"),
     
     /**
-     * Trạng thái đã hủy
+     * Cancelled status
      */
     CANCELLED("cancelled", "Đã hủy"),
     
     /**
-     * Trạng thái đang xử lý
+     * Processing status
      */
     PROCESSING("processing", "Đang xử lý"),
     
     /**
-     * Trạng thái đã hết hạn
+     * Expired status
      */
     EXPIRED("expired", "Đã hết hạn");
     
     /**
-     * Mã của trạng thái
+     * Status code
      */
     private final String code;
     
     /**
-     * Mô tả của trạng thái
+     * Status description
      */
     private final String description;
     
@@ -85,28 +85,28 @@ public enum Status {
     }
     
     /**
-     * Lấy mã của trạng thái
+     * Get the status code
      * 
-     * @return Mã trạng thái
+     * @return Status code
      */
     public String getCode() {
         return code;
     }
     
     /**
-     * Lấy mô tả của trạng thái
+     * Get the status description
      * 
-     * @return Mô tả trạng thái
+     * @return Status description
      */
     public String getDescription() {
         return description;
     }
     
     /**
-     * Tìm trạng thái theo mã
+     * Find status by code
      * 
-     * @param code Mã trạng thái
-     * @return Trạng thái tương ứng, null nếu không tìm thấy
+     * @param code Status code
+     * @return Corresponding status, null if not found
      */
     public static Status fromCode(String code) {
         if (code == null) {
@@ -123,38 +123,38 @@ public enum Status {
     }
     
     /**
-     * Kiểm tra xem trạng thái hiện tại có phải là trạng thái hoạt động không
+     * Check if current status is active
      * 
-     * @return true nếu là trạng thái hoạt động
+     * @return true if status is active
      */
     public boolean isActive() {
         return this == ACTIVE;
     }
     
     /**
-     * Kiểm tra xem trạng thái hiện tại có phải là trạng thái không hoạt động hoặc đã xóa không
+     * Check if current status is inactive or deleted
      * 
-     * @return true nếu là trạng thái không hoạt động hoặc đã xóa
+     * @return true if status is inactive or deleted
      */
     public boolean isInactiveOrDeleted() {
         return this == INACTIVE || this == DELETED;
     }
     
     /**
-     * Kiểm tra xem trạng thái hiện tại có phải là trạng thái đang xử lý không
+     * Check if current status is in processing state
      * 
-     * @return true nếu là trạng thái đang xử lý
+     * @return true if status is in processing
      */
     public boolean isProcessing() {
         return this == PROCESSING || this == PENDING;
     }
     
     /**
-     * Kiểm tra xem trạng thái hiện tại có phải là trạng thái đã hoàn thành không
+     * Check if current status is completed
      * 
-     * @return true nếu là trạng thái đã hoàn thành
+     * @return true if status is completed
      */
     public boolean isCompleted() {
         return this == COMPLETED || this == APPROVED;
     }
-} 
+}

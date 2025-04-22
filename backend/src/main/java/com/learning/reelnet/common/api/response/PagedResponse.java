@@ -1,7 +1,6 @@
 package com.learning.reelnet.common.api.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.learning.reelnet.common.api.query.PaginationParams;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Cấu trúc phản hồi phân trang chuẩn cho API.
- * Mở rộng từ ApiResponse để hỗ trợ thông tin phân trang.
+ * Standard paginated response structure for API.
  */
 @Data
 @Builder
@@ -24,59 +22,59 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PagedResponse<T> {
     /**
-     * Mã trạng thái HTTP
+     * HTTP status code
      */
     private int status;
     
     /**
-     * Thông báo kết quả
+     * Result message
      */
     private String message;
     
     /**
-     * Dữ liệu phản hồi
+     * Response data
      */
     private List<T> data;
     
     /**
-     * Thời gian phản hồi
+     * Response timestamp
      */
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
     
     /**
-     * Metadata phân trang
+     * Pagination metadata
      */
     private PageMetadata page;
     
     /**
-     * Metadata bổ sung
+     * Additional metadata
      */
     private Map<String, Object> meta;
     
     /**
-     * Tạo phản hồi phân trang từ Spring Page
+     * Create paginated response from Spring Page
      * 
-     * @param page Đối tượng Page của Spring
-     * @param <T> Kiểu dữ liệu
-     * @return Đối tượng PagedResponse
+     * @param page Spring Page object
+     * @param <T> Data type
+     * @return PagedResponse object
      */
     public static <T> PagedResponse<T> from(Page<T> page) {
         return PagedResponse.<T>builder()
                 .status(200)
-                .message("Thành công")
+                .message("Success")
                 .data(page.getContent())
                 .page(PageMetadata.from(page))
                 .build();
     }
     
     /**
-     * Tạo phản hồi phân trang từ Spring Page với thông báo
+     * Create paginated response from Spring Page with custom message
      * 
-     * @param page Đối tượng Page của Spring
-     * @param message Thông báo
-     * @param <T> Kiểu dữ liệu
-     * @return Đối tượng PagedResponse
+     * @param page Spring Page object
+     * @param message Custom message
+     * @param <T> Data type
+     * @return PagedResponse object
      */
     public static <T> PagedResponse<T> from(Page<T> page, String message) {
         return PagedResponse.<T>builder()
@@ -88,7 +86,7 @@ public class PagedResponse<T> {
     }
     
     /**
-     * Lớp đại diện cho metadata phân trang
+     * Class representing pagination metadata
      */
     @Data
     @Builder
@@ -96,41 +94,41 @@ public class PagedResponse<T> {
     @AllArgsConstructor
     public static class PageMetadata {
         /**
-         * Số trang hiện tại (dựa trên 0)
+         * Current page number (zero-based)
          */
         private int number;
         
         /**
-         * Kích thước trang
+         * Page size
          */
         private int size;
         
         /**
-         * Tổng số trang
+         * Total number of pages
          */
         private int totalPages;
         
         /**
-         * Tổng số phần tử
+         * Total number of elements
          */
         private long totalElements;
         
         /**
-         * Có trang trước không
+         * Whether there is a previous page
          */
         private boolean hasPrevious;
         
         /**
-         * Có trang sau không
+         * Whether there is a next page
          */
         private boolean hasNext;
         
         /**
-         * Tạo metadata phân trang từ Spring Page
+         * Create pagination metadata from Spring Page
          * 
-         * @param page Đối tượng Page của Spring
-         * @param <T> Kiểu dữ liệu
-         * @return Đối tượng PageMetadata
+         * @param page Spring Page object
+         * @param <T> Data type
+         * @return PageMetadata object
          */
         public static <T> PageMetadata from(Page<T> page) {
             return PageMetadata.builder()
@@ -145,36 +143,113 @@ public class PagedResponse<T> {
     }
     
     /**
-     * Tạo phản hồi phân trang từ List và PaginationParams
+     * Create paginated response from List and custom pagination information
      *
-     * @param data Danh sách dữ liệu
-     * @param paginationParams Thông tin phân trang
-     * @param <T> Loại dữ liệu
+     * @param data List of data
+     * @param pageNumber Current page number
+     * @param pageSize Page size
+     * @param totalElements Total number of elements
+     * @param <T> Data type
      * @return PagedResponse
      */
-    public static <T> PagedResponse<T> of(List<T> data, PaginationParams paginationParams) {
+    public static <T> PagedResponse<T> of(List<T> data, int pageNumber, int pageSize, long totalElements) {
+        int totalPages = pageSize > 0 ? (int) Math.ceil((double) totalElements / pageSize) : 0;
+        boolean hasPrevious = pageNumber > 0;
+        boolean hasNext = pageNumber + 1 < totalPages;
+        
         PageMetadata pageMetadata = PageMetadata.builder()
-                .number(paginationParams.getPage())
-                .size(paginationParams.getLimit())
-                .totalPages(paginationParams.getTotalPages() != null ? paginationParams.getTotalPages() : 1)
-                .totalElements(paginationParams.getTotal() != null ? paginationParams.getTotal() : data.size())
-                .hasPrevious(paginationParams.getHasPrevious() != null ? paginationParams.getHasPrevious() : false)
-                .hasNext(paginationParams.getHasNext() != null ? paginationParams.getHasNext() : false)
+                .number(pageNumber)
+                .size(pageSize)
+                .totalPages(totalPages)
+                .totalElements(totalElements)
+                .hasPrevious(hasPrevious)
+                .hasNext(hasNext)
                 .build();
         
         return PagedResponse.<T>builder()
                 .status(200)
-                .message("Thành công")
+                .message("Success")
                 .data(data)
                 .page(pageMetadata)
                 .build();
     }
     
     /**
-     * Thêm metadata vào phản hồi
+     * Create paginated response from List and Map containing pagination information
      *
-     * @param key Khóa
-     * @param value Giá trị
+     * @param data List of data
+     * @param paginationInfo Map containing pagination information
+     * @param <T> Data type
+     * @return PagedResponse
+     */
+    public static <T> PagedResponse<T> of(List<T> data, Map<String, Object> paginationInfo) {
+        Integer pageNumber = getIntValue(paginationInfo.get("pageNumber"), 0);
+        Integer pageSize = getIntValue(paginationInfo.get("pageSize"), data.size());
+        Long totalElements = getLongValue(paginationInfo.get("totalElements"), (long) data.size());
+        Integer totalPages = getIntValue(paginationInfo.get("totalPages"), 
+                pageSize > 0 ? (int) Math.ceil((double) totalElements / pageSize) : 0);
+        Boolean hasPrevious = getBooleanValue(paginationInfo.get("hasPrevious"), pageNumber > 0);
+        Boolean hasNext = getBooleanValue(paginationInfo.get("hasNext"), pageNumber + 1 < totalPages);
+        
+        PageMetadata pageMetadata = PageMetadata.builder()
+                .number(pageNumber)
+                .size(pageSize)
+                .totalPages(totalPages)
+                .totalElements(totalElements)
+                .hasPrevious(hasPrevious)
+                .hasNext(hasNext)
+                .build();
+        
+        return PagedResponse.<T>builder()
+                .status(200)
+                .message("Success")
+                .data(data)
+                .page(pageMetadata)
+                .build();
+    }
+    
+    /**
+     * Helper method to get Integer value from Object
+     */
+    private static Integer getIntValue(Object value, Integer defaultValue) {
+        if (value == null) return defaultValue;
+        if (value instanceof Integer) return (Integer) value;
+        if (value instanceof Number) return ((Number) value).intValue();
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+    
+    /**
+     * Helper method to get Long value from Object
+     */
+    private static Long getLongValue(Object value, Long defaultValue) {
+        if (value == null) return defaultValue;
+        if (value instanceof Long) return (Long) value;
+        if (value instanceof Number) return ((Number) value).longValue();
+        try {
+            return Long.parseLong(value.toString());
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+    
+    /**
+     * Helper method to get Boolean value from Object
+     */
+    private static Boolean getBooleanValue(Object value, Boolean defaultValue) {
+        if (value == null) return defaultValue;
+        if (value instanceof Boolean) return (Boolean) value;
+        return Boolean.parseBoolean(value.toString());
+    }
+    
+    /**
+     * Add metadata to response
+     *
+     * @param key Key
+     * @param value Value
      * @return PagedResponse
      */
     public PagedResponse<T> addMeta(String key, Object value) {
@@ -184,4 +259,4 @@ public class PagedResponse<T> {
         meta.put(key, value);
         return this;
     }
-} 
+}

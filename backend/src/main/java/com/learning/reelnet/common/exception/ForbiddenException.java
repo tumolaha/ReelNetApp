@@ -4,38 +4,38 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Ngoại lệ khi truy cập bị cấm.
- * Được sử dụng khi người dùng không có quyền truy cập vào tài nguyên yêu cầu.
+ * Exception for forbidden access.
+ * Used when a user doesn't have permission to access the requested resource.
  */
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class ForbiddenException extends RuntimeException {
 
     /**
-     * Mã lỗi
+     * Error code
      */
     private String errorCode;
 
     /**
-     * Constructor mặc định
+     * Default constructor
      */
     public ForbiddenException() {
-        super("Truy cập bị cấm");
+        super("Access forbidden");
     }
 
     /**
-     * Constructor với thông báo
+     * Constructor with message
      *
-     * @param message Thông báo lỗi
+     * @param message Error message
      */
     public ForbiddenException(String message) {
         super(message);
     }
 
     /**
-     * Constructor với thông báo và mã lỗi
+     * Constructor with message and error code
      *
-     * @param message Thông báo lỗi
-     * @param errorCode Mã lỗi
+     * @param message Error message
+     * @param errorCode Error code
      */
     public ForbiddenException(String message, String errorCode) {
         super(message);
@@ -43,21 +43,21 @@ public class ForbiddenException extends RuntimeException {
     }
 
     /**
-     * Constructor với thông báo và nguyên nhân
+     * Constructor with message and cause
      *
-     * @param message Thông báo lỗi
-     * @param cause Nguyên nhân
+     * @param message Error message
+     * @param cause The cause
      */
     public ForbiddenException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructor với thông báo, mã lỗi và nguyên nhân
+     * Constructor with message, error code and cause
      *
-     * @param message Thông báo lỗi
-     * @param errorCode Mã lỗi
-     * @param cause Nguyên nhân
+     * @param message Error message
+     * @param errorCode Error code
+     * @param cause The cause
      */
     public ForbiddenException(String message, String errorCode, Throwable cause) {
         super(message, cause);
@@ -65,11 +65,11 @@ public class ForbiddenException extends RuntimeException {
     }
 
     /**
-     * Lấy mã lỗi
+     * Get error code
      *
-     * @return Mã lỗi
+     * @return Error code
      */
     public String getErrorCode() {
         return errorCode;
     }
-} 
+}

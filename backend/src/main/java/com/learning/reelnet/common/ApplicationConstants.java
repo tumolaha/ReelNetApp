@@ -22,6 +22,11 @@ public final class ApplicationConstants {
         private Security() {
             throw new AssertionError("Utility class should not be instantiated");
         }
+
+        public static Object getCurrentUserLogin() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getCurrentUserLogin'");
+        }
     }
     
     /**

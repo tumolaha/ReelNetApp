@@ -3,26 +3,26 @@ package com.learning.reelnet.common.model.enums;
 import org.springframework.data.domain.Sort;
 
 /**
- * Enum định nghĩa các hướng sắp xếp được hỗ trợ trong hệ thống.
+ * Enum defining the sort directions supported in the system.
  */
 public enum SortDirection {
     /**
-     * Sắp xếp tăng dần
+     * Ascending sort order
      */
     ASCENDING("asc", "ASC"),
     
     /**
-     * Sắp xếp giảm dần
+     * Descending sort order
      */
     DESCENDING("desc", "DESC");
     
     /**
-     * Mã của hướng sắp xếp, sử dụng trong API
+     * Code of the sort direction, used in API
      */
     private final String code;
     
     /**
-     * Ký hiệu SQL tương ứng
+     * Corresponding SQL notation
      */
     private final String sqlDirection;
     
@@ -32,37 +32,37 @@ public enum SortDirection {
     }
     
     /**
-     * Lấy mã của hướng sắp xếp
+     * Get the sort direction code
      * 
-     * @return Mã hướng sắp xếp
+     * @return Sort direction code
      */
     public String getCode() {
         return code;
     }
     
     /**
-     * Lấy ký hiệu SQL tương ứng
+     * Get the corresponding SQL notation
      * 
-     * @return Ký hiệu SQL
+     * @return SQL notation
      */
     public String getSqlDirection() {
         return sqlDirection;
     }
     
     /**
-     * Tạo đối tượng Sort.Direction từ SortDirection
+     * Create a Sort.Direction object from SortDirection
      * 
-     * @return Đối tượng Sort.Direction tương ứng
+     * @return Corresponding Sort.Direction object
      */
     public Sort.Direction toSpringDirection() {
         return this == ASCENDING ? Sort.Direction.ASC : Sort.Direction.DESC;
     }
     
     /**
-     * Tìm hướng sắp xếp theo mã
+     * Find sort direction by code
      * 
-     * @param code Mã hướng sắp xếp ("asc", "desc")
-     * @return Hướng sắp xếp tương ứng, mặc định là ASCENDING nếu không tìm thấy
+     * @param code Sort direction code ("asc", "desc")
+     * @return Corresponding sort direction, defaults to ASCENDING if not found
      */
     public static SortDirection fromCode(String code) {
         if (code == null) {
@@ -75,7 +75,7 @@ public enum SortDirection {
             }
         }
         
-        // Xử lý các biến thể khác
+        // Handle other variants
         if ("-1".equals(code) || "descending".equalsIgnoreCase(code)) {
             return DESCENDING;
         }
@@ -84,14 +84,14 @@ public enum SortDirection {
             return ASCENDING;
         }
         
-        return ASCENDING; // Mặc định
+        return ASCENDING; // Default
     }
     
     /**
-     * Tìm hướng sắp xếp từ một chuỗi, có hỗ trợ dấu trừ (-) ở đầu
+     * Find sort direction from a string, supporting minus sign (-) prefix
      * 
-     * @param fieldName Tên trường sắp xếp, có thể có dấu trừ (-) ở đầu
-     * @return Hướng sắp xếp tương ứng (DESCENDING nếu có dấu -, ngược lại là ASCENDING)
+     * @param fieldName Sort field name, may have a minus sign (-) prefix
+     * @return Corresponding sort direction (DESCENDING if has - prefix, otherwise ASCENDING)
      */
     public static SortDirection fromFieldName(String fieldName) {
         if (fieldName == null || fieldName.isEmpty()) {
@@ -102,10 +102,10 @@ public enum SortDirection {
     }
     
     /**
-     * Lấy tên trường thực từ tên trường có thể có dấu -
+     * Get the actual field name from a field name that may have a minus sign
      * 
-     * @param fieldName Tên trường sắp xếp, có thể có dấu trừ (-) ở đầu
-     * @return Tên trường thực (bỏ dấu - nếu có)
+     * @param fieldName Sort field name, may have a minus sign (-) prefix
+     * @return Actual field name (without the - prefix if present)
      */
     public static String getActualFieldName(String fieldName) {
         if (fieldName == null || fieldName.isEmpty()) {
@@ -114,4 +114,4 @@ public enum SortDirection {
         
         return fieldName.startsWith("-") ? fieldName.substring(1) : fieldName;
     }
-} 
+}

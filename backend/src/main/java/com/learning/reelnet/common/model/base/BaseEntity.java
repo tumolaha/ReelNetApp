@@ -13,10 +13,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Lớp cơ sở cho các entity trong hệ thống.
- * Cung cấp các trường chung cho tất cả các entity như id, thông tin audit.
+ * Base class for entities in the system.
+ * Provides common fields for all entities such as id, audit information.
  * 
- * @param <ID> Kiểu dữ liệu của khóa chính
+ * @param <ID> Data type of the primary key
  */
 @Getter
 @Setter
@@ -27,55 +27,56 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
     private static final long serialVersionUID = 1L;
     
     /**
-     * ID tự tăng
+     * UUID-based ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", columnDefinition = "UUID")
     private ID id;
     
     /**
-     * Thời điểm tạo
+     * Creation timestamp
      */
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
     /**
-     * Người tạo
+     * Created by user
      */
     @CreatedBy
     @Column(name = "created_by", updatable = false)
     private String createdBy;
     
     /**
-     * Thời điểm cập nhật gần nhất
+     * Last update timestamp
      */
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
     /**
-     * Người cập nhật gần nhất
+     * Last updated by user
      */
     @LastModifiedBy
     @Column(name = "updated_by")
     private String updatedBy;
     
     /**
-     * Phiên bản để lạc quan khóa
+     * Version for optimistic locking
      */
     @Version
     @Column(name = "version")
-    private Long version;
+    private Long version = 0L;
     
     /**
-     * Đánh dấu đã xóa hay chưa (soft delete)
+     * Flag for soft delete
      */
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;
     
     /**
-     * Override phương thức equals để so sánh entity theo ID
+     * Override equals method to compare entities by ID
      */
     @Override
     public boolean equals(Object o) {
@@ -88,10 +89,10 @@ public abstract class BaseEntity<ID extends Serializable> implements Serializabl
     }
     
     /**
-     * Override phương thức hashCode để tạo mã băm theo ID
+     * Override hashCode method to generate hash code based on ID
      */
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
-} 
+}
