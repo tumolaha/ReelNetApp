@@ -51,7 +51,6 @@ import {
 import { useToast } from "@/shared/hooks/use-toast";
 import { CATEGORY_LIST } from "../../constants/category.constants";
 
-// Định nghĩa kiểu dữ liệu cho các tham số
 type SortField = "createdAt" | "name" | "itemCount" | "likeCount";
 type SortDirection = "asc" | "desc";
 type TabValue = "featured" | "recent" | "popular";
@@ -81,7 +80,7 @@ const CommunityVocabularyContainer = () => {
     
     // Add search parameters if search term exists
     if (debouncedSearchTerm) {
-      params.searchText = debouncedSearchTerm;
+      params.q = debouncedSearchTerm;
       params.searchFields = ["name", "description", "tags"];
     }
     
@@ -116,7 +115,8 @@ const CommunityVocabularyContainer = () => {
     pollingInterval: 0,
   });
 
-  // Hiển thị toast khi có lỗi
+  // Handle error state for fetching vocabulary sets
+  // Show toast notification if there is an error
   useEffect(() => {
     if (featuredError) {
       toast({
@@ -402,8 +402,8 @@ const CommunityVocabularyContainer = () => {
                           <TableCell>
                             {set.category || "General"}
                           </TableCell>
-                          <TableCell>{set.itemCount}</TableCell>
-                          <TableCell>{set.likeCount}</TableCell>
+                          <TableCell>{set.itemCount || 0}</TableCell>
+                          <TableCell>{set.likeCount || 0}</TableCell>
                           <TableCell className="text-right">
                             <Button
                               variant="ghost"

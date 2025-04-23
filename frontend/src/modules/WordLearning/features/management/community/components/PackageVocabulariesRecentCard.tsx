@@ -40,7 +40,7 @@ const PackageVocabulariesRecentCard = ({
           <span className="mr-4">By {set.createdBy}</span>{" "}
           {/* Updated to use createdBy instead of userCreated */}
           <BookOpen className="h-4 w-4 mr-1" />
-          <span>{set.itemCount} words</span>{" "}
+          <span>{set.itemCount || 0} words</span>{" "}
           {/* Updated to use itemCount instead of numberOfWords */}
           <span className="mx-3">•</span>
           <span>{set.category}</span>{" "}
@@ -50,9 +50,9 @@ const PackageVocabulariesRecentCard = ({
       <CardFooter className="flex justify-between">
         <div className="flex items-center text-sm">
           <Heart className="h-4 w-4 mr-1 text-red-500" />
-          <span className="mr-3">{set.likeCount}</span>
+          <span className="mr-3">{set.likeCount || 0}</span>
           <Download className="h-4 w-4 mr-1" />
-          <span>{set.shareCount}</span>{" "}
+          <span>{set.shareCount || 0}</span>{" "}
           {/* Updated to use downloadCount instead of downloads */}
         </div>
         <div className="flex gap-2">

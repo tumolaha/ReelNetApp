@@ -21,20 +21,12 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PagedResponse<T> {
-    /**
-     * HTTP status code
-     */
-    private int status;
-    
-    /**
-     * Result message
-     */
-    private String message;
+
     
     /**
      * Response data
      */
-    private List<T> data;
+    private List<T> content;
     
     /**
      * Response timestamp
@@ -61,9 +53,7 @@ public class PagedResponse<T> {
      */
     public static <T> PagedResponse<T> from(Page<T> page) {
         return PagedResponse.<T>builder()
-                .status(200)
-                .message("Success")
-                .data(page.getContent())
+                .content(page.getContent())
                 .page(PageMetadata.from(page))
                 .build();
     }
@@ -78,9 +68,7 @@ public class PagedResponse<T> {
      */
     public static <T> PagedResponse<T> from(Page<T> page, String message) {
         return PagedResponse.<T>builder()
-                .status(200)
-                .message(message)
-                .data(page.getContent())
+                .content(page.getContent())
                 .page(PageMetadata.from(page))
                 .build();
     }
@@ -167,9 +155,7 @@ public class PagedResponse<T> {
                 .build();
         
         return PagedResponse.<T>builder()
-                .status(200)
-                .message("Success")
-                .data(data)
+                .content(data)
                 .page(pageMetadata)
                 .build();
     }
@@ -201,9 +187,7 @@ public class PagedResponse<T> {
                 .build();
         
         return PagedResponse.<T>builder()
-                .status(200)
-                .message("Success")
-                .data(data)
+                .content(data)
                 .page(pageMetadata)
                 .build();
     }

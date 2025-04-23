@@ -1,40 +1,7 @@
 import { createApi, retry } from "@reduxjs/toolkit/query/react";
-import { axiosBaseQuery, clearMetricsCache } from "./AxiosCustomBaseQuery";
+import { axiosBaseQuery } from "./AxiosCustomBaseQuery";
 import axiosInstance from "./axiosInstance";
-import { metricsService } from "@/core/services/metricsService";
-
-// Theo dõi các metrics đã gửi để tránh gửi trùng lặp
-const sentMetrics = new Map<string, number>();
-
-// Thời gian tối thiểu giữa các lần gửi metrics (ms)
-const METRICS_THROTTLE_TIME = 60000; // 1 phút
-
-/**
- * Gửi metrics với cơ chế throttle để tránh gửi quá nhiều
- * @param metricKey Khóa định danh cho metric
- * @param metricFn Hàm gửi metric
- */
-export const sendThrottledMetric = (
-  metricKey: string,
-  metricFn: () => void
-) => {
-  const now = Date.now();
-  const lastSent = sentMetrics.get(metricKey) || 0;
-
-  // Chỉ gửi nếu đã qua thời gian throttle
-  if (now - lastSent > METRICS_THROTTLE_TIME) {
-    metricFn();
-    sentMetrics.set(metricKey, now);
-  }
-};
-
-/**
- * Xóa tất cả cache metrics
- */
-export const clearAllMetricsCache = () => {
-  sentMetrics.clear();
-  clearMetricsCache();
-};
+import { ApiErrorType, ApiError } from "./AxiosCustomBaseQuery";
 
 /**
  * Cấu hình retry cho các endpoints
@@ -77,22 +44,9 @@ export const apiSlice = createApi({
   refetchOnFocus: false,
   refetchOnReconnect: true,
   endpoints: (builder) => ({
-    // Auth endpoints
-    validateToken: builder.query({
-      query: () => ({
-        url: "/auth/validate",
-        method: "GET",
-      }),
-      transformResponse: (response: any) => response?.data,
-    }),
+
   }),
 });
-
-// Export hooks for auth-related endpoints
-export const { useValidateTokenQuery } = apiSlice;
-
-// Import ApiErrorType from AxiosCustomBaseQuery
-import { ApiErrorType, ApiError } from "./AxiosCustomBaseQuery";
 
 /**
  * Helper để xử lý lỗi chung từ các API calls
@@ -106,17 +60,6 @@ export const handleApiError = (err: any): ApiError => {
 
   // Nếu không có lỗi cụ thể
   if (!err.error) {
-    sendThrottledMetric("network_error", () => {
-      metricsService.trackRequest(
-        err.request?.url || "unknown",
-        err.request?.method || "GET",
-        0,
-        0,
-        false,
-        "Network error"
-      );
-    });
-
     return {
       type: ApiErrorType.NETWORK,
       status: "NETWORK_ERROR",
@@ -216,23 +159,6 @@ export const extractQueryResult = <T>(queryResult: any) => {
   let apiError: ApiError | null = null;
   if (isError) {
     apiError = handleApiError(error);
-
-    // Track error metrics (with throttling to prevent overloading)
-    if (apiError.type === ApiErrorType.SERVER) {
-      sendThrottledMetric(`server_error_${apiError.status || 500}`, () => {
-        // Use general trackRequest method instead of non-existent trackServerError
-        metricsService.trackRequest(
-          error.request?.url || "unknown",
-          error.request?.method || "GET",
-          apiError && typeof apiError.status === "number"
-            ? apiError.status
-            : 500,
-          0, // duration
-          false, // success = false for errors
-          apiError?.message || "Unknown error"
-        );
-      });
-    }
   }
 
   return {

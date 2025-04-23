@@ -99,9 +99,7 @@ public final class ResponseAdapter {
                 .build();
         
         return PagedResponse.<T>builder()
-                .status(200)
-                .message("Thành công")
-                .data(content)
+                .content(content)
                 .page(pageMetadata)
                 .build();
     }

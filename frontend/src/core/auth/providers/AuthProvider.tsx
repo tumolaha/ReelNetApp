@@ -1,6 +1,6 @@
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ROUTES } from "@/core/routes/constants";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/shared/hooks/use-toast";
 
 /**
@@ -13,50 +13,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Get configuration from environment variables
   const config = useMemo(() => {
-    try {
-      const domain = import.meta.env.VITE_AUTH0_DOMAIN as string;
-      const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID as string;
-      const audience = import.meta.env.VITE_AUTH0_AUDIENCE as string;
-      const redirectUri = window.location.origin;
-      return { domain, clientId, audience, redirectUri };
-    } catch (error) {
-      console.error("Error parsing Auth0 configuration:", error);
-      return { domain: "", clientId: "", audience: "", redirectUri: "" };
-    }
+    const domain = import.meta.env.VITE_AUTH0_DOMAIN as string;
+    const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID as string;
+    const audience = import.meta.env.VITE_AUTH0_AUDIENCE as string;
+    const redirectUri = window.location.origin;
+    return { domain, clientId, audience, redirectUri };
   }, []);
-
-  // Validate Auth0 configuration
-  useEffect(() => {
-    const { domain, clientId, audience } = config;
-
-    if (!(domain && clientId && audience)) {
-      const errorMsg =
-        "Auth0 configuration is incomplete. Please check your environment variables.";
-      console.error(errorMsg);
-      toast({
-        title: "Authentication configuration error",
-        description:
-          "Authentication configuration is incomplete. Please contact support.",
-        variant: "destructive",
-      });
-    } else {
-      // Additional domain format validation
-      if (
-        !domain.includes(".") ||
-        domain.startsWith(".") ||
-        domain.endsWith(".")
-      ) {
-        const errorMsg =
-          "Invalid Auth0 domain format. Please check your configuration.";
-        console.error(errorMsg);
-        toast({
-          title: "Authentication configuration error",
-          description: "Invalid Auth0 domain format. Please contact support.",
-          variant: "destructive",
-        });
-      }
-    }
-  }, [config, toast]);
 
   // Handle callback after login
   const onRedirectCallback = useCallback((appState: any) => {
@@ -74,7 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Default fallback
       window.location.href = ROUTES.HOME;
     } catch (error) {
-      console.error("Error in redirect callback:", error);
       window.location.href = ROUTES.HOME;
     }
   }, []);
@@ -90,26 +51,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           event.message.includes("token") ||
           event.message.includes("Service not found"))
       ) {
-        console.error("Auth0 Error:", event.error || event.message);
-        // Special handling for API v2 errors
-        if (
-          event.message.includes("Service not found") &&
-          event.message.includes("/api/v2/")
-        ) {
+        // Only show critical auth errors
+        if (event.message.includes("Service not found") && event.message.includes("/api/v2/")) {
           toast({
             title: "Authentication Error",
-            description:
-              "An error occurred while trying to authenticate. Please try again.",
+            description: "An error occurred. Please try again.",
             variant: "destructive",
           });
-          return;
         }
-        toast({
-          title: "Authentication Error",
-          description:
-            "An error occurred during authentication. Please try again.",
-          variant: "destructive",
-        });
       }
     };
 

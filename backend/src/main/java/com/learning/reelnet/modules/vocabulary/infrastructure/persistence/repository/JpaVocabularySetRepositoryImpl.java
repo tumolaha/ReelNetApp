@@ -1,6 +1,5 @@
 package com.learning.reelnet.modules.vocabulary.infrastructure.persistence.repository;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -13,25 +12,24 @@ import com.learning.reelnet.common.api.query.FilterParams;
 import com.learning.reelnet.common.api.query.QueryParams;
 import com.learning.reelnet.common.api.query.SearchParams;
 import com.learning.reelnet.common.api.query.utils.SpecificationFactory;
-// import com.learning.reelnet.common.api.query.annotation.QueryParam;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
+import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetHistory;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetRepository;
+import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.data.SpringDataVocabularySetRepository;
 
 import lombok.AllArgsConstructor;
 
 @Repository
 @AllArgsConstructor
 public class JpaVocabularySetRepositoryImpl implements VocabularySetRepository {
-    // Implement the methods defined in the VocabularySetRepository interface here
     private final SpringDataVocabularySetRepository springDataRepository;
 
-    @Override
-    public List<VocabularySet> findByCriteria(String criteria) {
-        return springDataRepository.findByCriteria(criteria);
-    }
-
     /*
-     * * Tìm kiếm theo ID của người dùng
+     * * find vocabulary set by id
+     * 
+     * * * @param id ID of the vocabulary set to find
+     * * * @return VocabularySet The vocabulary set with the specified ID
+     * 
      */
     @Override
     public VocabularySet findById(UUID id) {
@@ -39,27 +37,42 @@ public class JpaVocabularySetRepositoryImpl implements VocabularySetRepository {
     }
 
     /*
-     * * ?Tìm kiếm theo độ khó
+     * * save vocabulary set
+     * 
+     * * * @param vocabularySet VocabularySet object to save
+     * * * @return VocabularySet The saved vocabulary set
+     * * * @description This method saves a vocabulary set to the database.
      */
     @Override
     public VocabularySet save(VocabularySet vocabularySet) {
-        return springDataRepository.save(vocabularySet); // Implemented method to save vocabulary set
+        return springDataRepository.save(vocabularySet);
     }
 
+    /*
+     * * delete vocabulary set by id
+     * 
+     * * @param id ID of the vocabulary set to delete
+     * * @description This method deletes a vocabulary set by its ID.
+     */
     @Override
     public void deleteById(UUID id) {
-        springDataRepository.deleteById(id); // Implemented method to delete by ID
+        springDataRepository.deleteById(id);
     }
 
+    /*
+     * * find all vocabulary sets
+     * 
+     * * @param queryParam Pagination parameters
+     * * @param filterParams Filter criteria
+     * * @param searchParams Search criteria
+     * * @return Page<VocabularySet> List of vocabulary sets
+     * * @description This method retrieves all vocabulary sets based on the given
+     * parameters.
+     */
     @Override
     public Page<VocabularySet> findAll(QueryParams queryParam, FilterParams filterParams, SearchParams searchParams) {
-        // 1. Xây dựng Specification từ filterParams và searchParams
         Specification<VocabularySet> spec = SpecificationFactory.buildSpecification(filterParams, searchParams);
-
-        // 2. Chuyển QueryParam thành Pageable
         Pageable pageable = queryParam.toPageable();
-
-        // 3. Thực hiện truy vấn với Specification và Pageable
         if (pageable.isPaged()) {
             Page<VocabularySet> result = springDataRepository.findAll(spec, pageable);
             queryParam.updatePaginationInfo(result.getTotalElements());
@@ -70,19 +83,55 @@ public class JpaVocabularySetRepositoryImpl implements VocabularySetRepository {
     }
 
     /**
-     * Tạo Specification từ FilterParams và SearchParams
+     * * find by user id
+     * 
+     * * @param userId ID of the user
+     * * @return Page<VocabularySet> List of vocabulary sets for the user
+     * * @description This method retrieves all vocabulary sets associated with a
      */
 
     @Override
-    public List<VocabularySet> findByUserId(String userId) {
-        return springDataRepository.findByUserId(userId); // Implemented method to find by user ID
+    public Page<VocabularySet> findByUserId(String userId) {
+        // Tạo một Pageable mặc định để đảm bảo trả về tất cả kết quả
+        Pageable pageable = Pageable.unpaged();
+        return springDataRepository.findByUserId(userId, pageable); 
     }
 
+    /*
+     * * find all vocabulary set by user id
+     * 
+     * * @param userId ID of the user
+     * * @param queryParams Pagination parameters
+     * * @param filterParams Filter criteria
+     * * @param searchParams Search criteria
+     * * @return Page<VocabularySet> List of recent vocabulary sets for the user
+     * * @description This method retrieves all vocabulary sets associated with a
+     * user
+     */
     @Override
-    public List<VocabularySet> findByCategory(VocabularySet.Category category) {
-        return springDataRepository.findByCategory(category); // Implemented method to find by category
+    public Page<VocabularySet> findRecentlyByUser(String userId, QueryParams queryParams, FilterParams filterParams,
+            SearchParams searchParams) {
+        // Build specification từ filter và search params
+        Specification<VocabularySet> spec = SpecificationFactory.buildSpecification(filterParams, searchParams);
+        Pageable pageable = queryParams.toPageable();
+
+        Page<VocabularySetHistory> result = springDataRepository.findRecentlyByUser(
+                userId,
+                spec,
+                pageable);
+        queryParams.updatePaginationInfo(result.getTotalElements());
+        return result.map(history -> history.getVocabularySet());
     }
 
-    // create vocabulary set
+    /**
+     * * exists by id
+     * 
+     * * @param id ID of the vocabulary set
+     * * @return boolean true if the vocabulary set exists, false otherwise
+     */
+    @Override
+    public boolean existsById(UUID id) {
+        return springDataRepository.existsById(id);
+    }
 
 }

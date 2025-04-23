@@ -1,6 +1,5 @@
 package com.learning.reelnet.common.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,13 +11,19 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
 import com.learning.reelnet.common.infrastructure.security.Auth0Properties;
-import com.learning.reelnet.common.infrastructure.security.validator.AudienceValidator;
+import com.learning.reelnet.common.infrastructure.security.filter.UserSyncFilter;
+import com.learning.reelnet.common.infrastructure.security.handler.CustomAuthenticationEntryPoint;
+import com.learning.reelnet.common.infrastructure.security.helper.JwtDecoderLoggingFilter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Security configuration for the application.
@@ -28,110 +33,116 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
-
-    @Autowired
-    private Auth0Properties auth0Properties;
     
-    @Autowired
-    private CorsFilter corsFilter;
+    private static final String[] PUBLIC_URLS = {
+        "/api/public/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/api-docs/**",
+        "/",
+        "/actuator/health",
+        "/actuator/info"
+    };
 
-    /**
-     * Security filter chain for development environment.
-     * In development, all requests are permitted without authentication.
-     *
-     * @param http the HttpSecurity to configure
-     * @return the configured SecurityFilterChain
-     * @throws Exception if an error occurs
-     */
-    @Bean
-    @Profile("dev")
-    public SecurityFilterChain developmentSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(cors -> {})
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(
-                    "/api/public/**",
-                    "/api/v3/api-docs/**",
-                    "/api/v3/api-docs.yaml",
-                    "/api/swagger-ui/**",
-                    "/api/swagger-ui.html",
-                    "/api/swagger-resources/**",
-                    "/api/webjars/**",
-                    "/v3/api-docs/**",
-                    "/v3/api-docs.yaml",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/swagger-resources/**",
-                    "/webjars/**"
-                ).permitAll()
-                .anyRequest().permitAll()
-            )
-            .addFilter(corsFilter);
-        
-        return http.build();
-    }
+    private final Auth0Properties auth0Properties;
+    private final CorsFilter corsFilter;
+    private final UserSyncFilter userSyncFilter;
+    private final JwtDecoderLoggingFilter jwtLoggingFilter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    /**
-     * Security filter chain for production environment.
-     * In production, requests are authenticated with JWT tokens from Auth0.
-     *
-     * @param http the HttpSecurity to configure
-     * @return the configured SecurityFilterChain
-     * @throws Exception if an error occurs
-     */
     @Bean
     @Profile("!dev")
     public SecurityFilterChain productionSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> {})
             .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(
-                    "/api/public/**",
-                    "/api/v3/api-docs/**",
-                    "/api/v3/api-docs.yaml",
-                    "/api/swagger-ui/**",
-                    "/api/swagger-ui.html",
-                    "/api/swagger-resources/**",
-                    "/api/webjars/**",
-                    "/v3/api-docs/**",
-                    "/v3/api-docs.yaml",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/swagger-resources/**",
-                    "/webjars/**"
-                ).permitAll()
+                .requestMatchers(PUBLIC_URLS).permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.decoder(jwtDecoder()))
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(authenticationEntryPoint)
             )
-            .addFilter(corsFilter);
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .decoder(jwtDecoder())
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(authenticationEntryPoint)
+            )
+            .addFilter(corsFilter)
+            .addFilterBefore(jwtLoggingFilter, BasicAuthenticationFilter.class)
+            .addFilterAfter(userSyncFilter, BasicAuthenticationFilter.class)
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                .xssProtection(xss -> xss.disable())
+                .contentSecurityPolicy(csp -> csp.policyDirectives("frame-ancestors 'self'")));
+
+        return http.build();
+    }
+    
+    @Bean
+    @Profile("dev")
+    public SecurityFilterChain developmentSecurityFilterChain(HttpSecurity http) throws Exception {
+        // In development mode, we can use less restrictive security settings
+        http
+            .cors(cors -> {})
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(authorize -> authorize
+                // In dev mode, we can allow all requests or modify for your needs
+                .requestMatchers(PUBLIC_URLS).permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(authenticationEntryPoint)
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .decoder(jwtDecoder())
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(authenticationEntryPoint)
+            )
+            .addFilter(corsFilter)
+            .addFilterBefore(jwtLoggingFilter, BasicAuthenticationFilter.class)
+            .addFilterAfter(userSyncFilter, BasicAuthenticationFilter.class)
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                .xssProtection(xss -> xss.disable())
+                .contentSecurityPolicy(csp -> csp.policyDirectives("frame-ancestors 'self'")));
 
         return http.build();
     }
 
-    /**
-     * JWT decoder for validating Auth0 tokens.
-     *
-     * @return the JWT decoder
-     */
     @Bean
     public JwtDecoder jwtDecoder() {
-        String issuerUri = "https://" + auth0Properties.getDomain() + "/";
         
-        NimbusJwtDecoder jwtDecoder = JwtDecoders.fromOidcIssuerLocation(issuerUri);
-
-        OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(auth0Properties.getAudience());
-        OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
-        OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
-
-        jwtDecoder.setJwtValidator(withAudience);
-
-        return jwtDecoder;
+        try {
+            NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(auth0Properties.getJwkSetUri())
+                .build();
+            OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(auth0Properties.getIssuerUri());
+            jwtDecoder.setJwtValidator(withIssuer);
+            
+            return jwtDecoder;
+        } catch (Exception e) {
+            log.error("Error creating JWT Decoder", e);
+            throw e;
+        }
     }
-} 
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("permissions");
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+        jwtConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtConverter;
+    }
+}

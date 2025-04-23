@@ -27,7 +27,7 @@ export interface BaseQueryParams {
   sortCriteria?: string[];
 
   // Search functionality
-  searchText?: string;
+  q?: string;
   searchFields?: string[];
   searchCriteriaList?: SearchCriteria[];
 

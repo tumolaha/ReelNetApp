@@ -1,7 +1,6 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { toast } from '@/shared/hooks/use-toast';
-import { metricsService } from '@/core/services/metricsService';
 import { authService } from '@/core/auth/services/authService';
 
 // Define API error types enum
@@ -70,28 +69,6 @@ const resetAuthErrorFlag = () => {
   }, 5000); // Reset after 5 seconds
 };
 
-// Theo dõi các metrics lỗi đã gửi để tránh gửi trùng lặp
-const sentErrorMetrics = new Map<string, number>();
-
-// Thời gian tối thiểu giữa các lần gửi metrics lỗi (ms)
-const ERROR_METRICS_THROTTLE_TIME = 300000; // 5 phút
-
-/**
- * Gửi metrics lỗi với cơ chế throttle để tránh gửi quá nhiều
- * @param metricKey Khóa định danh cho metric
- * @param metricFn Hàm gửi metric
- */
-const sendThrottledErrorMetric = (metricKey: string, metricFn: () => void) => {
-  const now = Date.now();
-  const lastSent = sentErrorMetrics.get(metricKey) || 0;
-  
-  // Chỉ gửi nếu đã qua thời gian throttle
-  if (now - lastSent > ERROR_METRICS_THROTTLE_TIME) {
-    metricFn();
-    sentErrorMetrics.set(metricKey, now);
-  }
-};
-
 /**
  * Standard request options for all API calls
  */
@@ -117,9 +94,6 @@ export const axiosBaseQuery =
   > =>
   async ({ url, method, data, params, headers, skipAuthError = false }) => {
     try {
-      // Track API call start time for performance metrics
-      const startTime = Date.now();
-      
       const result = await axiosInstance({
         url,
         method,
@@ -127,21 +101,6 @@ export const axiosBaseQuery =
         params,
         headers,
       });
-      
-      // Track successful API call
-      const userId = authService.getTokenClaims()?.sub;
-      if (userId && url.includes('/auth/')) {
-        // Calculate response time
-        const responseTime = Date.now() - startTime;
-        
-        // Track metrics for auth endpoints
-        metricsService.trackAuthMetric({
-          type: 'auth',
-          name: `api.${url.split('/').pop()}.success`,
-          value: responseTime, // Track response time as value
-          userId,
-        });
-      }
       
       return { data: result.data };
     } catch (axiosError) {
@@ -186,15 +145,6 @@ export const axiosBaseQuery =
 
       // Handle auth errors
       if (err.isAuthError || (err.response && err.response.status === 401)) {
-        // Track auth failure - với cơ chế throttle
-        const userId = authService.getTokenClaims()?.sub;
-        if (userId) {
-          sendThrottledErrorMetric(
-            `token_validation_failure_${userId}`,
-            () => metricsService.trackTokenValidation(userId, false)
-          );
-        }
-        
         if (!skipAuthError && !authErrorShown) {
           authErrorShown = true;
           toast({
@@ -221,20 +171,6 @@ export const axiosBaseQuery =
         
         // Show toast for specific error types
         if (err.response.status === 403) {
-          // Track permission denied - với cơ chế throttle
-          const userId = authService.getTokenClaims()?.sub;
-          if (userId) {
-            const requiredPermission = (err.response.data as any)?.requiredPermission;
-            sendThrottledErrorMetric(
-              `permission_denied_${userId}_${url}_${requiredPermission || 'unknown'}`,
-              () => metricsService.trackPermissionDenied(
-                userId,
-                url,
-                requiredPermission
-              )
-            );
-          }
-          
           toast({
             title: "Access Denied",
             description: "You don't have permission to perform this action.",
@@ -246,7 +182,8 @@ export const axiosBaseQuery =
             description: "Please wait a moment before trying again.",
             variant: "destructive",
           });
-        }        // Standard response error
+        }        
+        // Standard response error
         const errorType = err.response.status >= 500 
           ? ApiErrorType.SERVER 
           : err.response.status === 400 
@@ -301,8 +238,3 @@ export const axiosBaseQuery =
       }
     }
   };
-
-// Hàm để xóa cache metrics khi logout
-export const clearMetricsCache = () => {
-  sentErrorMetrics.clear();
-};

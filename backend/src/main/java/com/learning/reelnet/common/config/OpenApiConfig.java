@@ -27,6 +27,9 @@ public class OpenApiConfig {
     @Value("${app.version:1.0.0}")
     private String appVersion;
 
+    @Value("${server.servlet.context-path:/api/v1}")
+    private String contextPath;
+
     /**
      * Configures the OpenAPI documentation for the API.
      * 
@@ -47,7 +50,7 @@ public class OpenApiConfig {
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")))
                 .servers(Arrays.asList(
-                        new Server().url(serverUrl).description("Server URL")))
+                        new Server().url(serverUrl + contextPath).description("Server URL with context path")))
                 .components(new Components()
                         .addSecuritySchemes("bearer-jwt",
                                 new SecurityScheme()

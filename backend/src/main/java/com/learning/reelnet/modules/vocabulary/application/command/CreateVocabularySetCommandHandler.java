@@ -34,10 +34,7 @@ public class CreateVocabularySetCommandHandler implements CommandHandler<UUID, C
         // Save the vocabulary set
         VocabularySet savedSet = vocabularySetApplicationService.createVocabularySet(vocabularySet);
 
-        // Add initial vocabularies if provided
-        if (command.getVocabularyIds() != null && !command.getVocabularyIds().isEmpty()) {
-            vocabularySetApplicationService.addVocabulariesToSet(savedSet.getId(), command.getVocabularyIds());
-        }
+        
 
         return savedSet.getId();
     }

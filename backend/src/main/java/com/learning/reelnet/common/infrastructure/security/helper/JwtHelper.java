@@ -8,6 +8,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Key;
 import java.util.Date;
@@ -21,6 +23,8 @@ import java.util.function.Function;
  */
 @Component
 public class JwtHelper {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtHelper.class);
 
     @Value("${application.security.jwt.secret-key:defaultsecretkeymustbereplacedinproduction}")
     private String secretKey;
@@ -112,8 +116,18 @@ public class JwtHelper {
      * @return true if the token is valid, false otherwise
      */
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            boolean usernameValid = username.equals(userDetails.getUsername());
+            boolean notExpired = !isTokenExpired(token);
+            
+            log.debug("Token validation: username match={}, not expired={}", usernameValid, notExpired);
+            
+            return usernameValid && notExpired;
+        } catch (Exception e) {
+            log.error("Error validating token: {}", e.getMessage());
+            return false;
+        }
     }
 
     /**

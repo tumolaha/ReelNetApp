@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
+import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.data.SpringDataVocabularyRepository;
 
 import lombok.AllArgsConstructor;
 
@@ -24,7 +25,6 @@ public class JpaVocabularyRepositoryImpl implements VocabularyRepository {
      */
     @Override
     public Vocabulary findById(UUID id) {
-        // TODO Auto-generated method stub
         return springDataVocabularyRepository.findById(id).orElse(null);
     }
 

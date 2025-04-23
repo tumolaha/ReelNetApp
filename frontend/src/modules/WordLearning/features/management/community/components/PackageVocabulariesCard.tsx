@@ -36,7 +36,9 @@ const PackageVocabulariesCard = ({ set }: PackageVocabulariesCardProps) => {
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="text-xl">{set.name}</CardTitle>
-                <CardDescription>{set.description}</CardDescription>
+                <CardDescription className="line-clamp-3 overflow-hidden">
+                  {set.description}
+                </CardDescription>
               </div>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-1" /> Add
@@ -46,20 +48,27 @@ const PackageVocabulariesCard = ({ set }: PackageVocabulariesCardProps) => {
           <CardContent className="p-0 pb-4">
             <div className="flex items-center text-sm text-muted-foreground mb-2">
               <Users className="h-4 w-4 mr-1" />
-              <span className="mr-4">By {set.createdBy}</span>
-              <BookOpen className="h-4 w-4 mr-1" />
-              <span>{set.itemCount} words</span>
+              <span
+                className="mr-4 whitespace-nowrap overflow-hidden text-ellipsis"
+                title={set.createdBy}
+              >
+                By {set.createdBy}
+              </span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {set.category || "General"}
+              <span className="text-sm">{set.category || "General"}</span>
             </div>
           </CardContent>
           <CardFooter className="p-0 pt-2 flex justify-between">
             <div className="flex items-center text-sm">
+              <BookOpen className="h-4 w-4 mr-1" />
+              <span className="whitespace-nowrap mr-2">
+                {set.itemCount || 0}
+              </span>
               <Heart className="h-4 w-4 mr-1 text-red-500" />
-              <span className="mr-3">{set.likeCount}</span>
+              <span className="mr-3">{set.likeCount || 0}</span>
               <Download className="h-4 w-4 mr-1" />
-              <span>{set.shareCount}</span>
+              <span>{set.shareCount || 0}</span>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link

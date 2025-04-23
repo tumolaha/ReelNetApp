@@ -1,4 +1,4 @@
-package com.learning.reelnet.modules.vocabulary.infrastructure.persistence.repository;
+package com.learning.reelnet.modules.vocabulary.infrastructure.persistence.data;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
@@ -25,6 +25,8 @@ import {
 } from "@/shared/components/ui/tabs";
 import { Separator } from "@/shared/components/ui/separator";
 import { ROUTES } from "@/core/routes/constants";
+import { useGetVocabularySetByIdQuery } from "../../api/vocabularySetApi";
+import { Toast } from "@/shared/components/ui/toast";
 
 // Demo word data - would come from API in real implementation
 const VocabularyData = {
@@ -62,6 +64,7 @@ const VocabularyData = {
 
 const DetailVocabularyContainer = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [isSaved, setIsSaved] = React.useState(false);
 
   // In a real app, we would fetch the word data based on the ID
@@ -70,11 +73,25 @@ const DetailVocabularyContainer = () => {
   //   queryFn: () => fetchWordById(id)
   // });
 
+  const { data, isLoading, error } = useGetVocabularySetByIdQuery({
+    id: id as string,
+  });
   const handleSaveWord = () => {
     setIsSaved(!isSaved);
     // In a real app, we would call an API to save/unsave the word
   };
-
+  useEffect(() => {
+    if (error) {
+      // Handle error (e.g., show a notification or redirect)
+      console.error("Error fetching word data:", error);
+      Toast({
+        title: "Error",
+        variant: "destructive",
+        content: "Failed to fetch word data. Please try again.",
+      });
+    }
+  }, [error]);
+  if (isLoading) return <div>Loading...</div>;
   return (
     <div className="container py-8 max-w-4xl mx-auto">
       {/* Back button and header */}
@@ -125,7 +142,12 @@ const DetailVocabularyContainer = () => {
             <Button
               size="sm"
               onClick={() =>
-                navigate(ROUTES.LEARNING.LEARNING_VOCABULARY.replace(":id", "flash-card"))
+                navigate(
+                  ROUTES.LEARNING.LEARNING_VOCABULARY.replace(
+                    ":id",
+                    "flash-card"
+                  )
+                )
               }
             >
               Practice

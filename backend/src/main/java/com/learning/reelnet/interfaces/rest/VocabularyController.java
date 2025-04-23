@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/v1/vocabulary")
+@RequestMapping("/vocabulary")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Vocabulary", description = "API endpoints for managing vocabulary")

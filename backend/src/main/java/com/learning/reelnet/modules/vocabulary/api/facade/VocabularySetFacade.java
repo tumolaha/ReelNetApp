@@ -3,14 +3,11 @@ package com.learning.reelnet.modules.vocabulary.api.facade;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springdoc.core.converters.models.Pageable;
 import org.springframework.data.domain.Page;
 import com.learning.reelnet.common.api.query.FilterParams;
 import com.learning.reelnet.common.api.query.QueryParams;
 import com.learning.reelnet.common.api.query.SearchParams;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Category;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.DifficultyLevel;
 
 /**
  * Facade for vocabulary set operations
@@ -54,57 +51,13 @@ public interface VocabularySetFacade {
                         SearchParams searchParams) throws Exception;
 
         /**
-         * Lấy danh sách bộ từ vựng của người dùng
+         * Lấy lịch sử bộ từ vựng theo ID người dùng
+         * 
+         * @param userId      ID của người dùng
+         * @param queryParams thông tin phân trang và tìm kiếm
+         * @throws Exception nếu có lỗi xảy ra trong quá trình lấy dữ liệu
+         * @return danh sách lịch sử bộ từ vựng
          */
-        Page<VocabularySetDto> getMyVocabularySets(Pageable pageable);
-
-        /**
-         * Lấy danh sách bộ từ vựng công khai
-         */
-        Page<VocabularySetDto> getPublicVocabularySets(Pageable pageable);
-
-        /**
-         * Thêm từ vựng vào bộ từ vựng
-         */
-        boolean addVocabularyToSet(UUID setId, VocabularySetDto.AddVocabularyRequest request);
-
-        /**
-         * Xóa từ vựng khỏi bộ từ vựng
-         */
-        boolean removeVocabularyFromSet(UUID setId, UUID vocabularyId);
-
-        /**
-         * Lấy danh sách từ vựng trong bộ từ vựng
-         */
-        Page<VocabularySetDto.VocabularyItemDto> getVocabulariesInSet(UUID setId, Pageable pageable);
-
-        /**
-         * Tăng lượt xem cho bộ từ vựng
-         */
-        boolean incrementViewCount(UUID id);
-
-        /**
-         * Thêm/bỏ thích bộ từ vựng
-         */
-        boolean toggleLike(UUID id);
-
-        /**
-         * Kiểm tra người dùng đã thích bộ từ vựng chưa
-         */
-        boolean isLikedByUser(UUID id);
-
-        /**
-         * Lấy danh sách bộ từ vựng theo danh mục
-         */
-        Page<VocabularySetDto> getVocabularySetsByCategory(Category category, Pageable pageable);
-
-        /**
-         * Lấy danh sách bộ từ vựng theo mức độ khó
-         */
-        Page<VocabularySetDto> getVocabularySetsByDifficulty(DifficultyLevel difficultyLevel, Pageable pageable);
-
-        /**
-         * Lấy danh sách bộ từ vựng theo độ phổ biến
-         */
-        Page<VocabularySetDto> getVocabularySetsByPopularity(Pageable pageable);
+        Page<VocabularySetDto> getVocabularySetHistoryByUserId(String userId, QueryParams queryParams,
+                        FilterParams filterParams, SearchParams searchParams) throws Exception;
 }

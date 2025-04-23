@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
@@ -51,6 +51,8 @@ import { ROUTES } from "@/core/routes/constants";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useGetVocabularyByCategoryQuery } from "../../api/vocabularyApi";
 import { useGetVocabularySetByIdQuery } from "../../api/vocabularySetApi";
+import { Toast } from "@/shared/components/ui/toast";
+import { useToast } from "@/shared/hooks/use-toast";
 
 // For demo purposes only - would be fetched from API in real app
 const vocabularySets = [
@@ -247,16 +249,16 @@ const statusFilters = ["All", "Learning", "Mastered", "Not Started"];
 
 const OverviewVocabularyPackageContainer = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { id } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [difficultyFilter, setDifficultyFilter] = useState("All");
-  const { data: vocabularySetData, isLoading: isVocabularySetLoading } =
-    useGetVocabularySetByIdQuery({ id: id || "" });
   const {
-    data: vocabulariesCategoryData,
-    isLoading: isVocabulariesCategoryLoading,
-  } = useGetVocabularyByCategoryQuery(id || "");
+    data: vocabularySetData,
+    isLoading: isVocabularySetLoading,
+    error: errorVocabularySet,
+  } = useGetVocabularySetByIdQuery({ id: id || "" });
 
   // Find the vocabulary set based on the ID
   const vocabularySet =
@@ -286,7 +288,18 @@ const OverviewVocabularyPackageContainer = () => {
       (tabElement as HTMLElement).click();
     }
   };
-
+  useEffect(() => {
+    // Reset filters when the component mounts
+    if (errorVocabularySet) {
+      toast({
+        title: "Error Loading Vocabulary Sets",
+        description:
+          "There was a problem loading the vocabulary sets. Please try again later.",
+        variant: "destructive",
+        showIcon: true,
+      });
+    }
+  }, [errorVocabularySet]);
   if (isVocabularySetLoading) {
     return (
       <div className="container py-8 max-w-7xl mx-auto">
@@ -417,36 +430,22 @@ const OverviewVocabularyPackageContainer = () => {
             <div className="flex flex-wrap gap-3 items-center text-sm text-muted-foreground">
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
-                <span>By {vocabularySetData?.data.createdBy }</span>
+                <span>By {vocabularySetData?.data.createdBy}</span>
               </div>
               <div className="flex items-center">
                 <BookOpen className="h-4 w-4 mr-1" />
-                <span>{vocabularySetData?.data.itemCount} words</span>
+                <span>{vocabularySetData?.data.itemCount || 0} words</span>
               </div>
-              {Array.isArray(vocabularySetData?.data.tags) 
-                ? vocabularySetData?.data.tags.map((tag: string) => (
-                    <div
-                      key={tag}
-                      className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                    >
-                      {tag}
-                    </div>
-                  ))
-                : vocabularySetData?.data.tags && (
-                    <div
-                      className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                    >
-                      {vocabularySetData?.data.tags}
-                    </div>
-                  )
-              }
+              
               <div className="flex items-center">
                 <Heart className="h-4 w-4 mr-1 text-red-500" />
-                <span className="mr-2">{vocabularySetData?.data.likeCount}</span>
+                <span className="mr-2">
+                  {vocabularySetData?.data.likeCount || 0}
+                </span>
               </div>
               <div className="flex items-center">
                 <Download className="h-4 w-4 mr-1" />
-                <span>{vocabularySetData?.data.shareCount}</span>
+                <span>{vocabularySetData?.data.shareCount ||0}</span>
               </div>
             </div>
           </div>
@@ -519,7 +518,7 @@ const OverviewVocabularyPackageContainer = () => {
                 </CardHeader>
                 <CardContent>
                   <Accordion type="single" collapsible className="w-full">
-                    {vocabulariesCategoryData?.data.content
+                    {/* {vocabulariesCategoryData?.data.content
                       .slice(0, 5)
                       .map((vocabulary) => (
                         <AccordionItem
@@ -565,7 +564,7 @@ const OverviewVocabularyPackageContainer = () => {
                             </div>
                           </AccordionContent>
                         </AccordionItem>
-                      ))}
+                      ))} */}
                   </Accordion>
                 </CardContent>
                 <CardFooter>

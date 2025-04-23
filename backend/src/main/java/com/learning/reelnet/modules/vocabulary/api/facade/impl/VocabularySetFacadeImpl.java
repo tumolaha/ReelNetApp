@@ -9,20 +9,15 @@ import com.learning.reelnet.modules.vocabulary.api.command.CreateVocabularySetCo
 import com.learning.reelnet.modules.vocabulary.api.command.DeleteVocabularySetCommand;
 import com.learning.reelnet.modules.vocabulary.api.command.UpdateVocabularySetCommand;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
-import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto.AddVocabularyRequest;
-import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto.VocabularyItemDto;
 import com.learning.reelnet.modules.vocabulary.api.facade.VocabularySetFacade;
 import com.learning.reelnet.modules.vocabulary.api.query.GetVocabularySetByIdQuery;
 import com.learning.reelnet.modules.vocabulary.api.query.GetAllVocabularySetQuery;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Category;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.DifficultyLevel;
+import com.learning.reelnet.modules.vocabulary.api.query.GetRecentlyVocabularySetHistoryQuery;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springdoc.core.converters.models.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +30,6 @@ public class VocabularySetFacadeImpl implements VocabularySetFacade {
     @Override
     public Optional<VocabularySetDto> createVocabularySet(VocabularySetDto.CreateRequest createRequest)
             throws Exception {
-        // Chuyển đổi từ DTO sang Command
         CreateVocabularySetCommand command = CreateVocabularySetCommand.builder()
                 .name(createRequest.getName())
                 .description(createRequest.getDescription())
@@ -78,88 +72,26 @@ public class VocabularySetFacadeImpl implements VocabularySetFacade {
 
     @Override
     public Optional<VocabularySetDto> getVocabularySetById(UUID id) throws Exception {
-        // Tạo query cho việc lấy bộ từ vựng
         GetVocabularySetByIdQuery query = new GetVocabularySetByIdQuery(id);
         VocabularySetDto vocabularySetDto = queryBus.dispatch(query);
         if (vocabularySetDto == null) {
-            return Optional.empty(); // Trả về Optional.empty() nếu không tìm thấy bộ từ vựng
+            return Optional.empty();
         }
-        // Gửi query thông qua QueryBus
-        return Optional.of(vocabularySetDto); // Trả về Optional chứa VocabularySetDto nếu tìm thấy
+        return Optional.of(vocabularySetDto);
     }
 
     @Override
     public Page<VocabularySetDto> searchVocabularySets(FilterParams filterParams, QueryParams queryParams,
             SearchParams searchParams) throws Exception {
-        // Tạo query và gửi thông qua QueryBus
         GetAllVocabularySetQuery query = new GetAllVocabularySetQuery(queryParams, filterParams, searchParams);
         return queryBus.dispatch(query);
     }
 
     @Override
-    public Page<VocabularySetDto> getMyVocabularySets(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMyVocabularySets'");
-    }
-
-    @Override
-    public Page<VocabularySetDto> getPublicVocabularySets(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPublicVocabularySets'");
-    }
-
-    @Override
-    public boolean addVocabularyToSet(UUID setId, AddVocabularyRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addVocabularyToSet'");
-    }
-
-    @Override
-    public boolean removeVocabularyFromSet(UUID setId, UUID vocabularyId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeVocabularyFromSet'");
-    }
-
-    @Override
-    public Page<VocabularyItemDto> getVocabulariesInSet(UUID setId, Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getVocabulariesInSet'");
-    }
-
-    @Override
-    public boolean incrementViewCount(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'incrementViewCount'");
-    }
-
-    @Override
-    public boolean toggleLike(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'toggleLike'");
-    }
-
-    @Override
-    public boolean isLikedByUser(UUID id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isLikedByUser'");
-    }
-
-    @Override
-    public Page<VocabularySetDto> getVocabularySetsByCategory(Category category, Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getVocabularySetsByCategory'");
-    }
-
-    @Override
-    public Page<VocabularySetDto> getVocabularySetsByDifficulty(DifficultyLevel difficultyLevel, Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getVocabularySetsByDifficulty'");
-    }
-
-    @Override
-    public Page<VocabularySetDto> getVocabularySetsByPopularity(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getVocabularySetsByPopularity'");
+    public Page<VocabularySetDto> getVocabularySetHistoryByUserId(String userId, QueryParams queryParams,
+            FilterParams filterParams, SearchParams searchParams) throws Exception {
+        GetRecentlyVocabularySetHistoryQuery query = new GetRecentlyVocabularySetHistoryQuery(userId, queryParams, filterParams, searchParams);
+        return queryBus.dispatch(query);
     }
 
 }

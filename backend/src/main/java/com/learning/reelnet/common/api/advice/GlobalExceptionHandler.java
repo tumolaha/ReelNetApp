@@ -13,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -258,6 +261,39 @@ public class GlobalExceptionHandler {
             requiredType = (type != null && type.getSimpleName() != null) ? type.getSimpleName() : "unknown type";
         }
         log.warn("Type mismatch: Parameter '{}' should be {}", ex.getName(), requiredType);
+        
+        return ApiResponse.error(errorResponse);
+    }
+    
+    /**
+     * Xử lý các ngoại lệ xác thực (401 Unauthorized)
+     * 
+     * @param ex Ngoại lệ xác thực
+     * @param request Yêu cầu HTTP hiện tại
+     * @return Phản hồi API với thông báo lỗi xác thực
+     */
+    @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class, InsufficientAuthenticationException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Object> handleAuthenticationException(Exception ex, HttpServletRequest request) {
+        String message = "Xác thực không thành công";
+        String errorCode = "AUTHENTICATION_FAILED";
+        
+        if (ex instanceof BadCredentialsException) {
+            message = "Thông tin đăng nhập không chính xác";
+            errorCode = "INVALID_CREDENTIALS";
+        } else if (ex instanceof InsufficientAuthenticationException) {
+            message = "Thiếu thông tin xác thực";
+            errorCode = "MISSING_AUTHENTICATION";
+        }
+        
+        ErrorResponse errorResponse = ErrorResponse.of(
+            HttpStatus.UNAUTHORIZED.value(),
+            message,
+            errorCode,
+            request.getRequestURI()
+        );
+        
+        log.warn("Authentication exception: {}", ex.getMessage());
         
         return ApiResponse.error(errorResponse);
     }
