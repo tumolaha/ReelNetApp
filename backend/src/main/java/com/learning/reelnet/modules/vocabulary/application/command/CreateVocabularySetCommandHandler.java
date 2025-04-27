@@ -10,6 +10,7 @@ import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.application.services.VocabularyApplicationService;
 import com.learning.reelnet.modules.vocabulary.application.services.VocabularySetApplicationService;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Visibility;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +27,7 @@ public class CreateVocabularySetCommandHandler implements CommandHandler<UUID, C
                 .name(command.getName())
                 .description(command.getDescription())
                 .visibility(
-                        command.getVisibility() != null ? command.getVisibility() : VocabularySet.Visibility.PRIVATE)
+                        command.getVisibility() != null ? command.getVisibility() : Visibility.PRIVATE)
                 .category(command.getCategory())
                 .createdBy(command.getCreatedBy())
                 .build();

@@ -7,22 +7,15 @@ import java.util.stream.Collectors;
 
 import com.learning.reelnet.common.api.query.annotation.SupportedParams;
 import com.learning.reelnet.common.model.base.BaseEntity;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Category;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.DifficultyLevel;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Visibility;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "vocabulary_set")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -35,105 +28,38 @@ import lombok.Setter;
 )
 public class VocabularySet extends BaseEntity<UUID> {
 
-    // No-args constructor
-    public VocabularySet() {
-        super();
-    }
-
-    @Column(nullable = false)
     private String name;
 
-    @Column(length = 1000)
     private String description;
 
-    @Column(name = "is_active")
     @Builder.Default
     private boolean isActive = true;
 
-    @Column(name = "created_by", nullable = false)
     private String createdBy;
 
-    @Column(name = "view_count")
     @Builder.Default
     private Long viewCount = 0L;
 
-    @Column(name = "like_count")
     @Builder.Default
     private Long likeCount = 0L;
 
-    @Column(name = "share_count")
     @Builder.Default
     private Long shareCount = 0L;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "visibility", nullable = false)
     @Builder.Default
     private Visibility visibility = Visibility.PRIVATE;
 
-    @Column(name = "difficulty_level")
-    @Enumerated(EnumType.STRING)
     private DifficultyLevel difficultyLevel;
 
-    @Column(name = "category")
-    @Enumerated(EnumType.STRING)
     private Category category;
 
-    @Column(name = "is_system")
+
     @Builder.Default
     private boolean isSystem = false;
 
-    @OneToMany(mappedBy = "vocabularySet", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<VocabularySetItem> vocabularyItems = new HashSet<>();
 
     // Cần bổ sung quan hệ với Vocabulary thông qua VocabularySetItem
-
-    public enum Visibility {
-        PRIVATE, // Chỉ người tạo có thể xem
-        UNLISTED, // Có link mới xem được
-        PUBLIC // Ai cũng xem được
-    }
-
-    public enum DifficultyLevel {
-        BEGINNER,
-        INTERMEDIATE,
-        ADVANCED,
-        EXPERT
-    }
-
-    public enum Category {
-        GENERAL,
-        ACADEMIC,
-        BUSINESS,
-        TECHNOLOGY,
-        MEDICAL,
-        IELTS,
-        TOEIC,
-        TOEFL,
-        TRAVEL,
-        FOOD_AND_DRINK,
-        SCIENCE,
-        ARTS,
-        SPORTS,
-        ENTERTAINMENT,
-        SOCIAL_MEDIA,
-        CULTURE,
-        HISTORY,
-        GEOGRAPHY,
-        LANGUAGE,
-        PSYCHOLOGY,
-        PHILOSOPHY,
-        RELIGION,
-        POLITICS,
-        TECHNICAL,
-        FINANCE,
-        ENVIRONMENT,
-        EDUCATION,
-        DAILY_CONVERSATION,
-        LITERATURE,
-        MUSIC,
-        OTHER
-    }
 
     // Constructor with required fields
     public VocabularySet(String name, String createdBy) {

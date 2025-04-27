@@ -1,66 +1,83 @@
 package com.learning.reelnet.modules.vocabulary.domain.repository;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.PartOfSpeech;
 
-import org.springframework.stereotype.Repository;
-
-@Repository
+/**
+ * Repository interface for Vocabulary domain model.
+ */
 public interface VocabularyRepository {
-
-    /*
-     * * Find a Vocabulary by its ID.
-     * * @param id UUID representing the ID of the Vocabulary to be found.
-     * * @return Vocabulary object that matches the given ID.
+    
+    /**
+     * Find a vocabulary by its ID
+     * 
+     * @param vocabularyIds The UUID of the vocabulary
+     * @return An Optional containing the vocabulary if found, empty otherwise
      */
-    Vocabulary findById(UUID id);
-
-    /*
-     * * Find a list of Vocabulary by their IDs.
-     * * @param ids List of UUIDs representing the IDs of the Vocabulary to be
-     * found.
-     * * @return List of Vocabulary objects that match the given IDs.
+    Optional<Vocabulary> findById(UUID vocabularyIds);
+    
+    /**
+     * Find a vocabulary by its headword
+     * 
+     * @param headword The headword to search for
+     * @return An Optional containing the vocabulary if found, empty otherwise
      */
-    List<Vocabulary> findById(Set<UUID> ids);
-
-    /*
-     * * Find a list of Vocabulary by their IDs.
-     * * @param ids List of UUIDs representing the IDs of the Vocabulary to be
-     * found.
-     * * @return List of Vocabulary objects that match the given IDs.
+    Optional<Vocabulary> findByHeadword(String headword);
+    
+    /**
+     * Find vocabularies by partial headword match
+     * 
+     * @param headword The partial headword to search for
+     * @return A list of matching vocabularies
+     */
+    List<Vocabulary> findByHeadwordContaining(String headword);
+    
+    /**
+     * Search vocabularies by keyword
+     * 
+     * @param keyword The keyword to search for
+     * @return A list of matching vocabularies
+     */
+    List<Vocabulary> searchByKeyword(String keyword);
+    
+    /**
+     * Find vocabularies by part of speech
+     * 
+     * @param pos The part of speech to filter by
+     * @return A list of matching vocabularies
+     */
+    List<Vocabulary> findByPos(PartOfSpeech pos);
+    
+    /**
+     * Find system vocabularies
+     * 
+     * @return A list of system vocabularies
+     */
+    List<Vocabulary> findSystemVocabularies();
+    
+    /**
+     * Save a vocabulary
+     * 
+     * @param vocabulary The vocabulary to save
+     * @return The saved vocabulary
+     */
+    Vocabulary save(Vocabulary vocabulary);
+    
+    /**
+     * Delete a vocabulary
+     * 
+     * @param vocabulary The vocabulary to delete
+     */
+    void delete(Vocabulary vocabulary);
+    
+    /**
+     * Find all vocabularies
+     * 
+     * @return A list of all vocabularies
      */
     List<Vocabulary> findAll();
-
-    /*
-     * * Save a Vocabulary to the database.
-     * * @param vocabulary Vocabulary object to be saved.
-     * * @return Saved Vocabulary object.
-     */
-    void save(Vocabulary vocabulary);
-
-    /*
-     * * Delete a Vocabulary by its ID.
-     * * @param id UUID representing the ID of the Vocabulary to be deleted.
-     */
-    void deleteById(UUID id);
-
-    /*
-     * * Find a list of Vocabulary by their IDs.
-     * * @param ids List of UUIDs representing the IDs of the Vocabulary to be
-     * found.
-     * * @return List of Vocabulary objects that match the given IDs.
-     */
-    List<Vocabulary> findByCriteria(String criteria);
-
-    /*
-     * * Find a list of Vocabulary by their IDs.
-     * * @param ids List of UUIDs representing the IDs of the Vocabulary to be
-     * found.`
-     * * @return List of Vocabulary objects that match the given IDs.
-     */
-    Vocabulary getReferenceById(UUID id);
-
 }

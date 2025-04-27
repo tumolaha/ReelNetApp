@@ -1,9 +1,9 @@
 package com.learning.reelnet.modules.vocabulary.api.command;
 
 import com.learning.reelnet.common.application.cqrs.command.Command;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Category;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.DifficultyLevel;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Visibility;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Category;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.DifficultyLevel;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Visibility;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -7,38 +7,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
 
+import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.entity.VocabularySetItemEntity;
 
 @Repository
 public interface SpringDataVocabularySetItemRepository
-        extends JpaRepository<VocabularySetItem, UUID>, JpaSpecificationExecutor<VocabularySetItem> {
-    /*
-     * * * Find all VocabularySetItem by their set ID.
-     * * * @param setId UUID representing the ID of the VocabularySet to be found.
-     */
-    @Query("SELECT MAX(v.displayOrder) FROM VocabularySetItem v WHERE v.vocabularySet.id = ?1")
-    public List<VocabularySetItem> findAllBySetId(UUID setId);
+        extends JpaRepository<VocabularySetItemEntity, UUID>, JpaSpecificationExecutor<VocabularySetItemEntity> {
+    
+    @Query("SELECT v FROM VocabularySetItemEntity v WHERE v.vocabularySet.id = :setId")
+    List<VocabularySetItemEntity> findAllBySetId(UUID setId);
 
-    /*
-     * * * Find all VocabularySetItem by their set ID.
-     * * * @param setId UUID representing the ID of the VocabularySet to be found.
-     */
-    @Query("SELECT v FROM VocabularySetItem v WHERE v.vocabularySet.id = ?1")   
-    public List<VocabularySetItem> findByVocabularySetId(UUID setId);
-    /*
-     * * * Find all VocabularySetItem by their set ID.
-     * * * @param setId UUID representing the ID of the VocabularySet to be found.
-     */
-    @Query("SELECT v FROM VocabularySetItem v WHERE v.vocabularySet.id = ?1")        
-    public List<VocabularySetItem> findAllByVocabularySetId(UUID setId);
+    @Query("SELECT v FROM VocabularySetItemEntity v WHERE v.vocabularySet.id = :setId")
+    List<VocabularySetItemEntity> findByVocabularySetId(UUID setId);
 
-    /*
-     * * * Find the maximum display order for VocabularySetItem by their set ID.
-     * * * @param setId UUID representing the ID of the VocabularySet to be found.
-     */
-    @Query("SELECT MAX(v.displayOrder) FROM VocabularySetItem v WHERE v.vocabularySet.id = ?1")
-    public Integer findMaxDisplayOrderBySetId(UUID setId); // Tìm max display order của vocabulary set item trong
-                                                           // vocabulary set
+    @Query("SELECT v FROM VocabularySetItemEntity v WHERE v.vocabularySet.id = :setId")
+    List<VocabularySetItemEntity> findAllByVocabularySetId(UUID setId);
 
+    @Query("SELECT COALESCE(MAX(v.displayOrder), 0) FROM VocabularySetItemEntity v WHERE v.vocabularySet.id = :setId")
+    Integer findMaxDisplayOrderBySetId(UUID setId);
 }

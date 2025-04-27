@@ -2,6 +2,9 @@ package com.learning.reelnet.modules.vocabulary.domain.services;
 
 import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Category;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.DifficultyLevel;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Visibility;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,34 +30,32 @@ public class VocabularySetDomainService {
         if (userId.equals(vocabularySet.getCreatedBy())) {
             return true;
         }
-        
-        // If PUBLIC, everyone can access
-        if (VocabularySet.Visibility.PUBLIC.equals(vocabularySet.getVisibility())) {
+          // If PUBLIC, everyone can access
+        if (Visibility.PUBLIC.equals(vocabularySet.getVisibility())) {
             return true;
         }
         
         // Logic to check SHARED (can be extended later)
-        if (VocabularySet.Visibility.PUBLIC.equals(vocabularySet.getVisibility())) {
+        if (Visibility.UNLISTED.equals(vocabularySet.getVisibility())) {
             // Check sharing permissions
             return false; // Temporarily return false, additional logic needed
         }
         
         return false;
     }
-    
-    /**
+      /**
      * Evaluate difficulty level of vocabulary set based on its words
      * 
      * @param vocabularySet VocabularySet to evaluate
      * @param vocabularyItems List of vocabulary items in the set
      * @return Suggested difficulty level
      */
-    public VocabularySet.DifficultyLevel evaluateDifficulty(
+    public DifficultyLevel evaluateDifficulty(
             VocabularySet vocabularySet, 
             List<Vocabulary> vocabularyItems) {
         
         if (vocabularyItems == null || vocabularyItems.isEmpty()) {
-            return VocabularySet.DifficultyLevel.BEGINNER;
+            return DifficultyLevel.BEGINNER;
         }
         
         // Calculate complexity based on vocabulary
@@ -62,13 +63,13 @@ public class VocabularySetDomainService {
         
         // Determine difficulty level based on complexity score
         if (complexityScore > 8.0) {
-            return VocabularySet.DifficultyLevel.EXPERT;
+            return DifficultyLevel.EXPERT;
         } else if (complexityScore > 6.0) {
-            return VocabularySet.DifficultyLevel.ADVANCED;
+            return DifficultyLevel.ADVANCED;
         } else if (complexityScore > 4.0) {
-            return VocabularySet.DifficultyLevel.INTERMEDIATE;
+            return DifficultyLevel.INTERMEDIATE;
         } else {
-            return VocabularySet.DifficultyLevel.BEGINNER;
+            return DifficultyLevel.BEGINNER;
         }
     }
     
@@ -92,8 +93,7 @@ public class VocabularySetDomainService {
         // Formula to calculate complexity score (example only)
         return (avgLength * 0.7) + (3.0 / (avgExamples + 1)) * 3.0;
     }
-    
-    /**
+      /**
      * Create a suggested vocabulary set based on keyword
      * 
      * @param keyword Keyword
@@ -106,8 +106,8 @@ public class VocabularySetDomainService {
         VocabularySet vocabularySet = VocabularySet.builder()
                 .name(name)
                 .description("Auto-generated vocabulary set based on keyword: " + keyword)
-                .visibility(VocabularySet.Visibility.PRIVATE)
-                .difficultyLevel(VocabularySet.DifficultyLevel.INTERMEDIATE)
+                .visibility(Visibility.PRIVATE)
+                .difficultyLevel(DifficultyLevel.INTERMEDIATE)
                 .category(determineCategory(keyword))
                 .createdBy(userId)
                 .build();
@@ -122,19 +122,19 @@ public class VocabularySetDomainService {
     /**
      * Determine category based on keyword
      */
-    private VocabularySet.Category determineCategory(String keyword) {
+    private Category determineCategory(String keyword) {
         keyword = keyword.toLowerCase();
         
         if (keyword.contains("business") || keyword.contains("company") || keyword.contains("marketing")) {
-            return VocabularySet.Category.BUSINESS;
+            return Category.BUSINESS;
         } else if (keyword.contains("school") || keyword.contains("study") || keyword.contains("academic")) {
-            return VocabularySet.Category.ACADEMIC;
+            return Category.ACADEMIC;
         } else if (keyword.contains("tech") || keyword.contains("computer") || keyword.contains("programming")) {
-            return VocabularySet.Category.TECHNICAL;
+            return Category.TECHNOLOGY;  // Note: Changed from TECHNICAL to TECHNOLOGY to match the enum
         } else if (keyword.contains("travel") || keyword.contains("vacation") || keyword.contains("tourism")) {
-            return VocabularySet.Category.TRAVEL;
+            return Category.TRAVEL;
         } else {
-            return VocabularySet.Category.GENERAL;
+            return Category.GENERAL;
         }
     }
     

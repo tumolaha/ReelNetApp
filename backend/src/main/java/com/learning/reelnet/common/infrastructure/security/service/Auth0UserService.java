@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -94,6 +95,7 @@ public class Auth0UserService {
      *
      * @return an array of permissions, or empty array if not available
      */
+    @SuppressWarnings("unchecked")
     public String[] getCurrentUserPermissions() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -107,13 +109,26 @@ public class Auth0UserService {
             }
 
             Jwt jwt = (Jwt) principal;
-            Map<String, Object> permissions = jwt.getClaim("permissions");
+            Object permissions = jwt.getClaim("permissions");
             
             if (permissions == null) {
                 return new String[0];
             }
             
-            return permissions.keySet().toArray(new String[0]);
+            // Handle different formats of permissions claim
+            if (permissions instanceof Collection) {
+                Collection<String> permissionList = (Collection<String>) permissions;
+                return permissionList.toArray(new String[0]);
+            } else if (permissions instanceof Map) {
+                Map<String, Object> permissionsMap = (Map<String, Object>) permissions;
+                return permissionsMap.keySet().toArray(new String[0]);
+            } else if (permissions instanceof String) {
+                String permissionsStr = (String) permissions;
+                return permissionsStr.split(",");
+            } else {
+                log.warn("Unexpected permissions format: {}", permissions.getClass().getName());
+                return new String[0];
+            }
         } catch (Exception e) {
             log.error("Error retrieving permissions: {}", e.getMessage());
             return new String[0];
@@ -135,4 +150,4 @@ public class Auth0UserService {
         }
         return false;
     }
-} 
+}

@@ -1,92 +1,93 @@
 package com.learning.reelnet.modules.vocabulary.infrastructure.persistence.repository;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
 import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.PartOfSpeech;
 import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.data.SpringDataVocabularyRepository;
 
-import lombok.AllArgsConstructor;
+import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.mapper.VocabularyEntityMapper;
 
+import lombok.RequiredArgsConstructor;
 
+/**
+ * JPA implementation of the VocabularyRepository interface.
+ */
 @Repository
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JpaVocabularyRepositoryImpl implements VocabularyRepository {
-    private final SpringDataVocabularyRepository springDataVocabularyRepository;
 
-    /*
-     * * Find a Vocabulary by its ID.
-     * * @param id UUID representing the ID of the Vocabulary to be found.
-     * * @return Vocabulary object that matches the given ID.
-     */
+    private final SpringDataVocabularyRepository vocabularyRepository;
+    private final VocabularyEntityMapper mapper;
+    
     @Override
-    public Vocabulary findById(UUID id) {
-        return springDataVocabularyRepository.findById(id).orElse(null);
+    public Optional<Vocabulary> findById(UUID id) {
+        return vocabularyRepository.findById(id)
+                .map(mapper::toDomainModel);
     }
-
-    /*
-     * * Find vocabulary by their set IDs.
-     * * @param ids Set of UUIDs representing the IDs of the Vocabulary to be
-     * found.
-     * * @return List of Vocabulary objects that match the given IDs.
-     */
+    
     @Override
-    public List<Vocabulary> findById(Set<UUID> ids) {
-        return springDataVocabularyRepository.findAllById(ids).stream().toList();
+    public Optional<Vocabulary> findByHeadword(String headword) {
+        return vocabularyRepository.findByHeadword(headword)
+                .map(mapper::toDomainModel);
     }
-
-    /*
-     * * Find all Vocabulary in the database.
-     * * @return List of Vocabulary objects that match the given IDs.
-     */
+    
+    @Override
+    public List<Vocabulary> findByHeadwordContaining(String headword) {
+        return vocabularyRepository.findByHeadwordContainingIgnoreCase(headword)
+                .stream()
+                .map(mapper::toDomainModel)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Vocabulary> searchByKeyword(String keyword) {
+        return vocabularyRepository.searchByKeyword(keyword)
+                .stream()
+                .map(mapper::toDomainModel)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Vocabulary> findByPos(PartOfSpeech pos) {
+        return vocabularyRepository.findByPosOrderByHeadwordAsc(pos.name())
+                .stream()
+                .map(mapper::toDomainModel)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Vocabulary> findSystemVocabularies() {
+        return vocabularyRepository.findByIsSystemTrue()
+                .stream()
+                .map(mapper::toDomainModel)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public Vocabulary save(Vocabulary vocabulary) {
+        var entity = mapper.toEntity(vocabulary);
+        var savedEntity = vocabularyRepository.save(entity);
+        return mapper.toDomainModel(savedEntity);
+    }
+    
+    @Override
+    public void delete(Vocabulary vocabulary) {
+        var entity = mapper.toEntity(vocabulary);
+        vocabularyRepository.delete(entity);
+    }
+    
     @Override
     public List<Vocabulary> findAll() {
-        return springDataVocabularyRepository.findAll().stream().toList();
+        return vocabularyRepository.findAll()
+                .stream()
+                .map(mapper::toDomainModel)
+                .collect(Collectors.toList());
     }
-
-    /*
-     * * Save a Vocabulary to the database.
-     * * @param vocabulary Vocabulary object to be saved.
-     * * @return Saved Vocabulary object.
-     */
-    @Override
-    public void save(Vocabulary vocabulary) {
-        springDataVocabularyRepository.save(vocabulary);
-    }
-
-    /*
-     * * Delete a Vocabulary by its ID.
-     * * @param id UUID representing the ID of the Vocabulary to be deleted.
-     */
-    @Override
-    public void deleteById(UUID id) {
-        springDataVocabularyRepository.deleteById(id);
-    }
-
-    /*
-     * * Find a list of Vocabulary by their IDs.
-     * * @param ids List of UUIDs representing the IDs of the Vocabulary to be
-     * found.
-     * * @return List of Vocabulary objects that match the given IDs.
-     */
-    @Override
-    public List<Vocabulary> findByCriteria(String criteria) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByCriteria'");
-    }
-
-    /*
-     * * Find a Vocabulary by its ID.
-     * * @param id UUID representing the ID of the Vocabulary to be found.
-     * * @return Vocabulary object that matches the given ID.
-     */
-    @Override
-    public Vocabulary getReferenceById(UUID id) {
-        return springDataVocabularyRepository.getReferenceById(id);
-    }
-
 }

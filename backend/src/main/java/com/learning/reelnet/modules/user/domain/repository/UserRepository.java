@@ -1,63 +1,60 @@
 package com.learning.reelnet.modules.user.domain.repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
-
 import com.learning.reelnet.modules.user.domain.model.User;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+/**
+ * Repository interface for User domain model.
+ * Defines methods for persisting and retrieving User entities.
+ */
+public interface UserRepository {
     
     /**
      * Find a user by their Auth0 ID
-     * @param auth0Id the Auth0 ID
-     * @return the user if found
+     * 
+     * @param auth0Id The Auth0 ID of the user
+     * @return An Optional containing the user if found, empty otherwise
      */
     Optional<User> findByAuth0Id(String auth0Id);
     
     /**
-     * Find a user by their email
-     * @param email the email
-     * @return the user if found
+     * Find a user by their email address
+     * 
+     * @param email The user's email address
+     * @return An Optional containing the user if found, empty otherwise
      */
     Optional<User> findByEmail(String email);
     
     /**
-     * Find all creators (pageable)
-     * @param pageable pagination information
-     * @return page of creators
+     * Find a user by their UUID
+     * 
+     * @param id The UUID of the user
+     * @return An Optional containing the user if found, empty otherwise
      */
-    Page<User> findByCreatorTrue(Pageable pageable);
+    Optional<User> findById(UUID id);
     
     /**
-     * Find users by role
-     * @param role the role to search for
-     * @param pageable pagination information
-     * @return page of users with the given role
+     * Save a user to the repository
+     * 
+     * @param user The user to save
+     * @return The saved user
      */
-    Page<User> findByRole(String role, Pageable pageable);
+    User save(User user);
     
     /**
-     * Search users by email or display name containing the search term
-     * @param searchTerm the search term
-     * @param pageable pagination information
-     * @return page of matching users
+     * Delete a user from the repository
+     * 
+     * @param user The user to delete
      */
-    @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(u.displayName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
-    Page<User> searchUsers(String searchTerm, Pageable pageable);
+    void delete(User user);
     
     /**
-     * Get recently active users
-     * @param limit max number of users to return
-     * @return list of recently active users
+     * Check if a user with the given Auth0 ID exists
+     * 
+     * @param auth0Id The Auth0 ID to check
+     * @return True if a user with the given Auth0 ID exists, false otherwise
      */
-    @Query(value = "SELECT * FROM users ORDER BY last_login DESC NULLS LAST LIMIT :limit", nativeQuery = true)
-    List<User> findRecentlyActiveUsers(int limit);
-} 
+    boolean existsByAuth0Id(String auth0Id);
+}

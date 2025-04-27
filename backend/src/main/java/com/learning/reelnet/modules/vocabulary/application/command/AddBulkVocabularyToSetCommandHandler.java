@@ -5,10 +5,7 @@ import com.learning.reelnet.modules.vocabulary.api.command.AddBulkVocabularyToSe
 import com.learning.reelnet.modules.vocabulary.api.command.AddBulkVocabularyToSetCommand.VocabularyItem;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
-import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetRepository;
-
-import jakarta.persistence.EntityNotFoundException;
 
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
@@ -57,9 +54,9 @@ public class AddBulkVocabularyToSetCommandHandler implements CommandHandler<Inte
         }
 
         // 5. Tối ưu: Lấy tất cả vocabulary cần thêm trong một lần query
-        Map<UUID, Vocabulary> vocabularyMap = vocabularyRepository.findById(vocabularyIds)
-                .stream()
-                .collect(Collectors.toMap(Vocabulary::getId, v -> v));
+        // Map<UUID, Vocabulary> vocabularyMap = vocabularyRepository.findById(vocabularyIds)
+        //         .stream()
+        //         .collect(Collectors.toMap(Vocabulary::getId, v -> v));
 
         // 6. Tìm displayOrder lớn nhất hiện tại
         Integer maxOrder = vocabularySetItemRepository.findMaxDisplayOrderBySetId(command.getVocabularySetId());
@@ -73,31 +70,31 @@ public class AddBulkVocabularyToSetCommandHandler implements CommandHandler<Inte
                 .filter(item -> !existingVocabIds.contains(item.getVocabularyId()))
                 .collect(Collectors.toMap(VocabularyItem::getVocabularyId, item -> item));
 
-        int counter = 1;
-        for (UUID vocabId : vocabularyIds) {
-            Vocabulary vocabulary = vocabularyMap.get(vocabId);
-            if (vocabulary == null) {
-                if (command.isFailOnError()) {
-                    throw new EntityNotFoundException("Vocabulary with id " + vocabId + " not found");
-                } else {
-                    log.warn("Vocabulary with id {} not found, skipping", vocabId);
-                    continue;
-                }
-            }
+        // int counter = 1;
+        // for (UUID vocabId : vocabularyIds) {
+        //     Vocabulary vocabulary = vocabularyMap.get(vocabId);
+        //     if (vocabulary == null) {
+        //         if (command.isFailOnError()) {
+        //             throw new EntityNotFoundException("Vocabulary with id " + vocabId + " not found");
+        //         } else {
+        //             log.warn("Vocabulary with id {} not found, skipping", vocabId);
+        //             continue;
+        //         }
+        //     }
 
-            VocabularyItem itemData = itemsMap.get(vocabId);
-            VocabularySetItem item = VocabularySetItem.builder()
-                    .vocabularySet(vocabularySet)
-                    .vocabulary(vocabulary)
-                    .displayOrder(itemData.getDisplayOrder() != null
-                            ? itemData.getDisplayOrder()
-                            : maxOrder + counter++)
-                    .customDefinition(itemData.getCustomDefinition())
-                    .customExample(itemData.getCustomExample())
-                    .build();
+        //     VocabularyItem itemData = itemsMap.get(vocabId);
+        //     VocabularySetItem item = VocabularySetItem.builder()
+        //             .vocabularySet(vocabularySet)
+        //             .vocabulary(vocabulary)
+        //             .displayOrder(itemData.getDisplayOrder() != null
+        //                     ? itemData.getDisplayOrder()
+        //                     : maxOrder + counter++)
+        //             .customDefinition(itemData.getCustomDefinition())
+        //             .customExample(itemData.getCustomExample())
+        //             .build();
 
-            newItems.add(item);
-        }
+        //     newItems.add(item);
+        // }
 
         // 8. Tối ưu: Lưu tất cả items trong một lần gọi
         vocabularySetItemRepository.saveAll(newItems);

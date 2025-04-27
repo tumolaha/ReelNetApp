@@ -1,8 +1,8 @@
 package com.learning.reelnet.modules.vocabulary.api.dto;
 
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Category;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.DifficultyLevel;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Visibility;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Category;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.DifficultyLevel;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Visibility;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

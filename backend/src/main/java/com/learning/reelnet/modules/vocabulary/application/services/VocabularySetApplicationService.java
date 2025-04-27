@@ -7,7 +7,7 @@ import com.learning.reelnet.common.api.query.annotation.SupportedParams;
 import com.learning.reelnet.common.api.query.validator.QueryParamValidator;
 import com.learning.reelnet.common.exception.ResourceNotFoundException;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
-import com.learning.reelnet.modules.vocabulary.application.mapper.VocabularySetMapper;
+import com.learning.reelnet.modules.vocabulary.application.mapper.VocabularySetDtoMapper;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
@@ -32,7 +32,7 @@ import java.util.UUID;
 public class VocabularySetApplicationService {
 
     private final VocabularySetRepository vocabularySetRepository;
-    private final VocabularySetMapper vocabularySetMapper;
+    private final VocabularySetDtoMapper vocabularySetMapper;
     private final VocabularySetItemRepository vocabularySetItemRepository;
     private final VocabularyRepository vocabularyRepository;
     private final QueryParamValidator validator;

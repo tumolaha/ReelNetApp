@@ -3,7 +3,8 @@ package com.learning.reelnet.modules.vocabulary.application.mapper;
 import com.learning.reelnet.common.model.base.BaseMapper;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet.Visibility;
+import com.learning.reelnet.modules.vocabulary.domain.valueobject.Visibility;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -13,14 +14,14 @@ import java.util.UUID;
  * Mapper cho VocabularySet, chuyển đổi giữa entity và DTO
  */
 @Component("vocabularySetMapper")
-public class VocabularySetMapper implements BaseMapper<VocabularySet, VocabularySetDto> {
+public class VocabularySetDtoMapper implements BaseMapper<VocabularySet, VocabularySetDto> {
 
     @Override
     public VocabularySetDto toDto(VocabularySet entity) {
         if (entity == null) {
             return null;
         }
-        
+
         return VocabularySetDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -47,10 +48,9 @@ public class VocabularySetMapper implements BaseMapper<VocabularySet, Vocabulary
 
         // Tạo instance với các trường bắt buộc
         VocabularySet entity = new VocabularySet(
-            dto.getName(),
-            dto.getCreatedBy() != null ? dto.getCreatedBy() : "system"
-        );
-        
+                dto.getName(),
+                dto.getCreatedBy() != null ? dto.getCreatedBy() : "system");
+
         // Set các trường không bắt buộc
         entity.setId(dto.getId() != null ? dto.getId() : UUID.randomUUID());
         entity.setDescription(dto.getDescription());
@@ -61,7 +61,7 @@ public class VocabularySetMapper implements BaseMapper<VocabularySet, Vocabulary
         entity.setSystem(dto.isSystem());
         entity.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDateTime.now());
         entity.setUpdatedAt(dto.getUpdatedAt() != null ? dto.getUpdatedAt() : LocalDateTime.now());
-        
+
         return entity;
     }
 
@@ -70,33 +70,31 @@ public class VocabularySetMapper implements BaseMapper<VocabularySet, Vocabulary
         if (dto == null || entity == null) {
             return entity;
         }
-        
+
         if (dto.getName() != null) {
             entity.setName(dto.getName());
         }
-        
+
         if (dto.getDescription() != null) {
             entity.setDescription(dto.getDescription());
         }
-        
+
         if (dto.getVisibility() != null) {
             entity.setVisibility(dto.getVisibility());
         }
-        
+
         if (dto.getDifficultyLevel() != null) {
             entity.setDifficultyLevel(dto.getDifficultyLevel());
         }
-        
+
         if (dto.getCategory() != null) {
             entity.setCategory(dto.getCategory());
         }
-        
+
         // Luôn cập nhật thời gian chỉnh sửa
         entity.setUpdatedAt(LocalDateTime.now());
-        
+
         return entity;
     }
-
-    
 
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.learning.reelnet.common.application.cqrs.query.QueryHandler;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.api.query.GetRecentlyVocabularySetHistoryQuery;
-import com.learning.reelnet.modules.vocabulary.application.mapper.VocabularySetMapper;
+import com.learning.reelnet.modules.vocabulary.application.mapper.VocabularySetDtoMapper;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetRepository;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class GetRecentlyVocabularySetHistoryQueryHandler implements QueryHandler<Page<VocabularySetDto>, GetRecentlyVocabularySetHistoryQuery> {
 
-    private final VocabularySetMapper vocabularySetMapper;
+    private final VocabularySetDtoMapper vocabularySetMapper;
     private final VocabularySetRepository vocabularySetRepository;
 
     

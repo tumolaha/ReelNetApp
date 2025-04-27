@@ -9,45 +9,54 @@ import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
 import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.data.SpringDataVocabularySetItemRepository;
 
-import lombok.AllArgsConstructor;
+import com.learning.reelnet.modules.vocabulary.infrastructure.persistence.mapper.VocabularySetItemEntityMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Repository
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JpaVocabularySetItemRepositoryImpl implements VocabularySetItemRepository {
-    private final SpringDataVocabularySetItemRepository springDataVocabularySetItemRepository;
+    private final SpringDataVocabularySetItemRepository springDataRepository;
+    private final VocabularySetItemEntityMapper mapper;
+    
     @Override
     public List<VocabularySetItem> saveAll(List<VocabularySetItem> vocabularySetItems) {
-        return springDataVocabularySetItemRepository.saveAll(vocabularySetItems);
+        var entities = mapper.toEntities(vocabularySetItems);
+        var savedEntities = springDataRepository.saveAll(entities);
+        return mapper.toDomainModels(savedEntities);
     }
 
     @Override
     public void deleteAll(List<VocabularySetItem> vocabularySetItems) {
-        springDataVocabularySetItemRepository.deleteAll(vocabularySetItems);
+        var entities = mapper.toEntities(vocabularySetItems);
+        springDataRepository.deleteAll(entities);
     }
 
     @Override
     public void deleteAll() {
-        springDataVocabularySetItemRepository.deleteAll();
+        springDataRepository.deleteAll();
     }
 
     @Override
     public List<VocabularySetItem> findAllBySetId(UUID setId) {
-        return springDataVocabularySetItemRepository.findAllBySetId(setId);
+        var entities = springDataRepository.findAllBySetId(setId);
+        return mapper.toDomainModels(entities);
     }
 
     @Override
     public List<VocabularySetItem> findByVocabularySetId(UUID setId) {
-        return springDataVocabularySetItemRepository.findByVocabularySetId(setId);
+        var entities = springDataRepository.findByVocabularySetId(setId);
+        return mapper.toDomainModels(entities);
     }
 
     @Override
     public List<VocabularySetItem> findAllByVocabularySetId(UUID setId) {
-        return springDataVocabularySetItemRepository.findAllByVocabularySetId(setId);
+        var entities = springDataRepository.findAllByVocabularySetId(setId);
+        return mapper.toDomainModels(entities);
     }
     
     @Override
     public Integer findMaxDisplayOrderBySetId(UUID setId) {
-        return springDataVocabularySetItemRepository.findMaxDisplayOrderBySetId(setId);
+        return springDataRepository.findMaxDisplayOrderBySetId(setId);
     }
-    
 }
