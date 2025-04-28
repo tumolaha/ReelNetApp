@@ -1,14 +1,13 @@
 package com.learning.reelnet.modules.user.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
-
-import com.learning.reelnet.common.model.base.BaseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -19,56 +18,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(callSuper = true)
-public class User extends BaseEntity<UUID> {
+public class User {
     
-    /**
-     * The Auth0 ID of the user (sub claim from JWT)
-     */
-    private String auth0Id;
-    
-    /**
-     * The user's email address
-     */
+    private String id; // Auth0 user ID
     private String email;
-    
-    /**
-     * The user's display name
-     */
-    private String displayName;
-    
-    /**
-     * URL to the user's profile picture
-     */
-    private String pictureUrl;
-    
-    /**
-     * The user's locale setting
-     */
+    private String name;
+    private String picture;
+    private String nickname;
     private String locale;
-    
-    /**
-     * The user's role in the system
-     */
-    private String role;
-    
-    /**
-     * Flag indicating whether the user is a content creator
-     */
-    private Boolean isCreator;
-    
-    /**
-     * User settings stored as JSON
-     */
-    private String settings;
-    
-    /**
-     * Timestamp of the user's last login
-     */
+
+    @Builder.Default
+    private Set<UUID> roles = new HashSet<>();
+    @Builder.Default
+    private Set<UUID> permissions = new HashSet<>();
+    private LocalDateTime lastSyncedWithAuth0;
+    private String auth0UpdatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private LocalDateTime lastLogin;
-    
-    /**
-     * Flag indicating whether the user account is active
-     */
-    private Boolean isActive;
+    private boolean emailVerified;
+    private boolean blocked;
+    private String userMetadata;
+    private String appMetadata;
 }

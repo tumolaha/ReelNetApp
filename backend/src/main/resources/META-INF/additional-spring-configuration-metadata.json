@@ -1,0 +1,127 @@
+{"properties": [
+  {
+    "name": "app.features.enable-social-login",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-social-login'"
+  },
+  {
+    "name": "app.email.from",
+    "type": "java.lang.String",
+    "description": "A description for 'app.email.from'"
+  },
+  {
+    "name": "app.email.support",
+    "type": "java.lang.String",
+    "description": "A description for 'app.email.support'"
+  },
+  {
+    "name": "spring.security.oauth2.resourceserver.jwt.audience",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.security.oauth2.resourceserver.jwt.audience'"
+  },
+  {
+    "name": "cors.allow-credentials",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.allow-credentials'"
+  },
+  {
+    "name": "cors.allowed-origins",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.allowed-origins'"
+  },
+  {
+    "name": "cors.allowed-methods",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.allowed-methods'"
+  },
+  {
+    "name": "cors.allowed-headers",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.allowed-headers'"
+  },
+  {
+    "name": "cors.exposed-headers",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.exposed-headers'"
+  },
+  {
+    "name": "cors.max-age",
+    "type": "java.lang.String",
+    "description": "A description for 'cors.max-age'"
+  },
+  {
+    "name": "auth0.domain",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.domain'"
+  },
+  {
+    "name": "auth0.clientId",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.clientId'"
+  },
+  {
+    "name": "auth0.clientSecret",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.clientSecret'"
+  },
+  {
+    "name": "auth0.audience",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.audience'"
+  },
+  {
+    "name": "auth0.connection",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.connection'"
+  },
+  {
+    "name": "auth0.management.api.rate-limit",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.api.rate-limit'"
+  },
+  {
+    "name": "auth0.management.api.token-cache-ms",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.api.token-cache-ms'"
+  },
+  {
+    "name": "auth0.webhook.signing-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.webhook.signing-secret'"
+  },
+  {
+    "name": "user.sync.minimum-interval-hours",
+    "type": "java.lang.String",
+    "description": "A description for 'user.sync.minimum-interval-hours'"
+  },
+  {
+    "name": "user.sync.create-if-not-exists",
+    "type": "java.lang.String",
+    "description": "A description for 'user.sync.create-if-not-exists'"
+  },
+  {
+    "name": "cache.user-info.expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'cache.user-info.expiration'"
+  },
+  {
+    "name": "cache.user-info.max-size",
+    "type": "java.lang.String",
+    "description": "A description for 'cache.user-info.max-size'"
+  },
+  {
+    "name": "app.api.problem-base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.api.problem-base-url'"
+  },
+  {
+    "name": "app.api.version",
+    "type": "java.lang.String",
+    "description": "A description for 'app.api.version'"
+  },
+  {
+    "name": "app.version",
+    "type": "java.lang.String",
+    "description": "A description for 'app.version'"
+  }
+]}

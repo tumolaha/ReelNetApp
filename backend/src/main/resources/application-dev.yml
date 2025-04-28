@@ -1,4 +1,7 @@
 # Development-specific configurations
+server:
+  port: 8081  # Sử dụng cổng 8081 thay vì 8080 để tránh xung đột
+
 spring:
   # Database Configuration  
   datasource:
@@ -38,27 +41,11 @@ logging:
     root: INFO
     '[com.learning.reelnet]': DEBUG
     '[org.hibernate.SQL]': DEBUG
-    
-# Development-specific application properties
-app:
-  features:
-    enable-swagger: true
-  
-  # Use local file storage for development
-  storage:
-    location: ./uploads
 
-# Development-specific Actuator settings
-management:
-  endpoints:
-    web:
-      exposure:
-        # In development, expose all endpoints for testing
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
-  simple:
-    metrics:
-      export:
-        enabled: true  # Use simple metrics for development
+# Auth0 development configuration
+auth0:
+  domain: dev-og4gg3ghvjxtwo22.us.auth0.com
+  audience: dev-og4gg3ghvjxtwo22.us.auth0.com/api/v2/
+  client-id: XpSryAbP6XqOfjAoHmVsJc6ZDVaA7upR
+  client-secret: ccM53jvwx6nCakr-kr8KxAWV_5ssvq9HFK2Bn4vghaHdhXx2O1aeiQnJKhPRmnMz
+

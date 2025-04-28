@@ -1,41 +1,38 @@
 package com.learning.reelnet.modules.user.infrastructure.persistence.data;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.learning.reelnet.modules.user.infrastructure.persistence.entity.UserEntity;
 
-
 /**
  * Spring Data JPA Repository for User entities
  */
 @Repository
-public interface SpringDataUserRepository extends JpaRepository<UserEntity, UUID> {
-    
-    /**
-     * Find a user by their Auth0 ID
-     * 
-     * @param auth0Id The Auth0 ID of the user
-     * @return An Optional containing the user if found, empty otherwise
-     */
-    Optional<UserEntity> findByAuth0Id(String auth0Id);
-    
-    /**
-     * Find a user by their email address
-     * 
-     * @param email The user's email address
-     * @return An Optional containing the user if found, empty otherwise
-     */
-    Optional<UserEntity> findByEmail(String email);
-    
-    /**
-     * Check if a user with the given Auth0 ID exists
-     * 
-     * @param auth0Id The Auth0 ID to check
-     * @return True if a user with the given Auth0 ID exists, false otherwise
-     */
-    boolean existsByAuth0Id(String auth0Id);
+public interface SpringDataUserRepository extends JpaRepository<UserEntity, String> {
+        /**
+         * Find a user by their email address
+         * 
+         * @param email The email address to search for
+         * @return An Optional containing the UserEntity if found, or empty if not
+         */
+        Optional<UserEntity> findByEmail(String email);
+        /**
+         * Find by last synced date with Auth0 and updated at date
+         * 
+         * @param date The date to search for users last synced before
+         * @return A list of UserEntity found
+         */
+        List<UserEntity> findByLastSyncedWithAuth0Before(Date date);
+        /**
+         * check if a user exists by their ID
+         * 
+         * @param id The ID to check for existence
+         * @return true if the user exists, false otherwise
+         */
+        boolean existsById(String id);
 }

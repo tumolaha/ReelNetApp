@@ -77,6 +77,7 @@ public class SpecificationFactory {
         return result;
     }
     
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb,
             String propertyPath, String operator, Object value) {
         
@@ -114,7 +115,6 @@ public class SpecificationFactory {
         // Xử lý cho Enum
         if (pathType.isEnum() && value instanceof String) {
             try {
-                @SuppressWarnings("unchecked")
                 Enum<?> enumValue = Enum.valueOf((Class<Enum>)pathType, (String)value);
                 value = enumValue;
             } catch (IllegalArgumentException e) {
@@ -167,6 +167,7 @@ public class SpecificationFactory {
     }
     
     // Thêm method hỗ trợ cho Date
+    @SuppressWarnings("rawtypes")
     private static <T> Predicate handleDateComparison(CriteriaBuilder cb, 
             Path<Object> path, String operator, String dateStr, Class<?> targetType) {
         try {

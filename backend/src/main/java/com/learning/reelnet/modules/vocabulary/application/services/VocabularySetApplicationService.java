@@ -9,8 +9,6 @@ import com.learning.reelnet.common.exception.ResourceNotFoundException;
 import com.learning.reelnet.modules.vocabulary.api.dto.VocabularySetDto;
 import com.learning.reelnet.modules.vocabulary.application.mapper.VocabularySetDtoMapper;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
-import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
-import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -33,8 +31,8 @@ public class VocabularySetApplicationService {
 
     private final VocabularySetRepository vocabularySetRepository;
     private final VocabularySetDtoMapper vocabularySetMapper;
-    private final VocabularySetItemRepository vocabularySetItemRepository;
-    private final VocabularyRepository vocabularyRepository;
+    // private final VocabularySetItemRepository vocabularySetItemRepository;
+    // private final VocabularyRepository vocabularyRepository;
     private final QueryParamValidator validator;
 
     // region Basic CRUD Operations

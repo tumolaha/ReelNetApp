@@ -12,12 +12,12 @@ server:
 spring:
   application:
     name: ReelNetApp
-  
+
   # Profile Configuration
   profiles:
     active: dev
-  
-  # Database Configuration  
+
+  # Database Configuration
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/reelnet}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -40,8 +40,8 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
-  
-  # JPA Configuration  
+
+  # JPA Configuration
   jpa:
     hibernate:
       ddl-auto: update
@@ -69,7 +69,7 @@ spring:
             banner: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
-  
+
   # Security Configuration
   security:
     oauth2:
@@ -78,16 +78,16 @@ spring:
           jwk-set-uri: https://${auth0.domain}/.well-known/jwks.json
           issuer-uri: https://${auth0.domain}/
           audience: ${auth0.audience}
-  
+
   # Kafka Configuration
   kafka:
-    enabled: false  # Disable Kafka by default
+    enabled: false # Disable Kafka by default
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:reelnet-group}
     topics:
       domain-events: domain-events
-  
+
   # Flyway Configuration
   flyway:
     enabled: true # Enable flyway
@@ -95,7 +95,7 @@ spring:
     baseline-on-migrate: true
     validate-on-migrate: true
     clean-disabled: true
-  
+
   # Jackson Configuration
   jackson:
     serialization:
@@ -103,13 +103,13 @@ spring:
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
     time-zone: UTC
     default-property-inclusion: non-null
-  
+
   # Cache Configuration
   cache:
     type: caffeine
     caffeine:
       spec: maximumSize=500,expireAfterAccess=600s
-  
+
   # Mail Configuration
   mail:
     host: ${SPRING_MAIL_HOST:smtp.example.com}
@@ -122,7 +122,7 @@ spring:
           auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
           starttls:
             enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
-  
+
   # Multipart File Upload Configuration
   servlet:
     multipart:
@@ -135,14 +135,14 @@ spring:
 logging:
   level:
     root: INFO
-    '[com.learning.reelnet]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
-    '[org.springframework.security]': TRACE
-    '[org.springframework.security.oauth2]': TRACE
-    '[org.springframework.security.jwt]': TRACE
-    '[org.springframework.security.web]': TRACE
-    '[io.jsonwebtoken]': TRACE
+    "[com.learning.reelnet]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
+    "[org.springframework.security]": TRACE
+    "[org.springframework.security.oauth2]": TRACE
+    "[org.springframework.security.jwt]": TRACE
+    "[org.springframework.security.web]": TRACE
+    "[io.jsonwebtoken]": TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -167,9 +167,9 @@ springdoc:
     use-root-path: false
   default-produces-media-type: application/json
   default-consumes-media-type: application/json
-  paths-to-match: 
+  paths-to-match:
     - /**
-  packages-to-scan: 
+  packages-to-scan:
     - com.learning.reelnet
   show-actuator: false
   writer-with-default-pretty-printer: true
@@ -186,21 +186,29 @@ cors:
 
 # Auth0 Configuration
 auth0:
-  domain: ${AUTH0_DOMAIN:your-auth0-domain.auth0.com}
-  audience: ${AUTH0_AUDIENCE:your-auth0-api-identifier}
-  client-id: ${AUTH0_CLIENT_ID:your-auth0-client-id}
-  client-secret: ${AUTH0_CLIENT_SECRET:your-auth0-client-secret}
-  issuer: https://${AUTH0_DOMAIN:your-auth0-domain.auth0.com}/
+  domain: ${AUTH0_DOMAIN:dev-og4gg3ghvjxtwo22.us.auth0.com}
+  clientId: ${AUTH0_CLIENT_ID:XpSryAbP6XqOfjAoHmVsJc6ZDVaA7upR}
+  clientSecret: ${AUTH0_CLIENT_SECRET:ccM53jvwx6nCakr-kr8KxAWV_5ssvq9HFK2Bn4vghaHdhXx2O1aeiQnJKhPRmnMz}
+  audience: ${AUTH0_AUDIENCE:dev-og4gg3ghvjxtwo22.us.auth0.com/api/v2/}
+  connection: Username-Password-Authentication
+  management:
+    api:
+      rate-limit: 10
+      token-cache-ms: 86400000
+  webhook:
+    signing-secret: YOUR_WEBHOOK_SIGNING_SECRET
 
-# Security Configuration
-security:
-  jwt:
-    token:
-      secret-key: ${JWT_SECRET_KEY:your-secret-key-should-be-at-least-256-bits}
-      expire-length: ${JWT_EXPIRATION} # 24 hours
-      refresh-token:
-        expire-length: ${JWT_REFRESH_EXPIRATION} # 7 days
-    disable-audience-check: true
+# config async user
+user:
+  sync:
+    minimum-interval-hours: 24
+    create-if-not-exists: true
+
+# config Cache
+cache:
+  user-info:
+    expiration: 3600
+    max-size: 1000
 
 # Custom Application Properties
 app:
@@ -208,10 +216,10 @@ app:
   api:
     problem-base-url: https://api.reelnet.com/problems
     version: v1
-  
+
   # Application Version
   version: 1.0.0
-  
+
   # Rate Limit Configuration
   rate-limit:
     enabled: true
@@ -232,29 +240,29 @@ app:
         refill-tokens: 10
         refill-duration: 1
         refill-time-unit: MINUTES
-  
+
   # Pagination Configuration
   pagination:
     default-page-size: 20
     max-page-size: 100
-  
+
   # File Storage Configuration
   storage:
     location: ${user.home}/reelnet/uploads
     allowed-content-types: image/jpeg,image/png,image/gif,application/pdf
     max-file-size: 5MB
-  
+
   # Email Configuration
   email:
     from: noreply@reelnet.com
     support: support@reelnet.com
-  
+
   # Feature Flags
   features:
     enable-social-login: true
     enable-file-upload: true
     enable-advanced-search: true
-  
+
   # Async Task Configuration
   async:
     core-pool-size: 5
@@ -287,9 +295,9 @@ management:
       enabled: true
     env:
       post:
-        enabled: false  # Disable changing environment at runtime for security
+        enabled: false # Disable changing environment at runtime for security
     shutdown:
-      enabled: false    # Disable shutdown endpoint for security
+      enabled: false # Disable shutdown endpoint for security
   info:
     env:
       enabled: true

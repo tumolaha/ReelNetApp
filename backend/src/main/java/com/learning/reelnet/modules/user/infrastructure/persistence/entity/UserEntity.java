@@ -1,18 +1,29 @@
 package com.learning.reelnet.modules.user.infrastructure.persistence.entity;
 
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-import com.learning.reelnet.common.model.base.BaseEntity;
-
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import jakarta.persistence.Id;
 
 /**
  * JPA Entity for User in the database.
@@ -20,40 +31,50 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "users")
-@Data
-@Builder
+@EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class UserEntity extends BaseEntity<UUID> {
+public class UserEntity {
+    @Id
+    @Column(unique = true, nullable = false)
+    private String id; // Auth0 user ID
     
-    @Column(name = "auth0_id", nullable = false, unique = true)
-    private String auth0Id;
-    
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
     
-    @Column(name = "display_name")
-    private String displayName;
-    
-    @Column(name = "picture_url")
-    private String pictureUrl;
-    
-    @Column(name = "locale")
+    private String name;
+    private String picture;
+    private String nickname;
     private String locale;
     
-    @Column(name = "role")
-    private String role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<UUID> roles = new HashSet<>();
     
-    @Column(name = "is_creator")
-    private Boolean isCreator;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<UUID> permissions = new HashSet<>();
     
-    @Column(name = "settings", columnDefinition = "jsonb")
-    private String settings;
+    // Thông tin đồng bộ
+    private Date lastSyncedWithAuth0;
+    private String auth0UpdatedAt;
     
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
+    // Audit fields
+    @CreatedDate
+    private Date createdAt;
     
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    @LastModifiedDate
+    private Date updatedAt;
+    
+    private Date lastLogin;
+    private boolean emailVerified;
+    private boolean blocked;
+    
+    // Dữ liệu tùy chỉnh ứng dụng
+    @Column(columnDefinition = "TEXT")
+    private String userMetadata;
+    
+    @Column(columnDefinition = "TEXT")
+    private String appMetadata;
 }

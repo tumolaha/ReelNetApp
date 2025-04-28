@@ -38,7 +38,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator' // Actuator for monitoring and management
 	implementation 'org.springframework.boot:spring-boot-starter-web' // Web application support
 	implementation 'org.springframework.boot:spring-boot-starter-validation' // Validation support
-
+	
+	// WebClient để gọi Auth0 Management API
+	implementation 'org.springframework:spring-webflux:7.0.0-M4'
+	
 	// Database dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA for database interaction
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Redis support
@@ -55,10 +58,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security' // Security support
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server' // OAuth2 Resource Server support
 	implementation 'org.springframework.security:spring-security-oauth2-jose' // JWT and JWK support
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // JWT API
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // JWT Implementation
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JWT Jackson integration
-
+	//jwtDecoder
+	implementation 'io.jsonwebtoken:jjwt:0.12.6'
 	// Messaging dependencies
 	implementation 'org.springframework.kafka:spring-kafka' // Spring Kafka
 
@@ -92,6 +93,9 @@ dependencies {
 	implementation 'me.paulschwarz:spring-dotenv:2.5.4'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	//cache
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 }
 
 tasks.named('bootBuildImage') {

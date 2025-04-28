@@ -3,12 +3,13 @@ package com.learning.reelnet.modules.vocabulary.application.command;
 import com.learning.reelnet.common.application.cqrs.command.CommandHandler;
 import com.learning.reelnet.modules.vocabulary.api.command.AddBulkVocabularyToSetCommand;
 import com.learning.reelnet.modules.vocabulary.api.command.AddBulkVocabularyToSetCommand.VocabularyItem;
-import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySet;
+import com.learning.reelnet.modules.vocabulary.domain.model.Vocabulary;
 import com.learning.reelnet.modules.vocabulary.domain.model.VocabularySetItem;
-import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetRepository;
-
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularyRepository;
 import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetItemRepository;
+import com.learning.reelnet.modules.vocabulary.domain.repository.VocabularySetRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class AddBulkVocabularyToSetCommandHandler implements CommandHandler<Inte
     @Transactional
     public Integer handle(AddBulkVocabularyToSetCommand command) throws Exception {
         // 1. Lấy vocabulary set từ ID
-        VocabularySet vocabularySet = vocabularySetRepository.findById(command.getVocabularySetId());
+        // VocabularySet vocabularySet = vocabularySetRepository.findById(command.getVocabularySetId());
 
         // 2. Tối ưu: Lấy tất cả vocabulary ID cần thêm
         Set<UUID> vocabularyIds = command.getVocabularyItems().stream()
@@ -66,35 +67,39 @@ public class AddBulkVocabularyToSetCommandHandler implements CommandHandler<Inte
         }
         // 7. Tạo batch items để insert
         List<VocabularySetItem> newItems = new ArrayList<>();
-        Map<UUID, VocabularyItem> itemsMap = command.getVocabularyItems().stream()
-                .filter(item -> !existingVocabIds.contains(item.getVocabularyId()))
-                .collect(Collectors.toMap(VocabularyItem::getVocabularyId, item -> item));
+        // Map<UUID, VocabularyItem> itemsMap = command.getVocabularyItems().stream()
+        //         .filter(item -> !existingVocabIds.contains(item.getVocabularyId()))
+        //         .collect(Collectors.toMap(VocabularyItem::getVocabularyId, item -> item));
 
-        // int counter = 1;
-        // for (UUID vocabId : vocabularyIds) {
-        //     Vocabulary vocabulary = vocabularyMap.get(vocabId);
-        //     if (vocabulary == null) {
-        //         if (command.isFailOnError()) {
-        //             throw new EntityNotFoundException("Vocabulary with id " + vocabId + " not found");
-        //         } else {
-        //             log.warn("Vocabulary with id {} not found, skipping", vocabId);
-        //             continue;
-        //         }
-        //     }
+        int counter = 1;
+        for (UUID vocabId : vocabularyIds) {
+            Vocabulary vocabulary = vocabularyRepository.findById(vocabId).orElse(null);
+            if (vocabulary == null) {
+                if (command.isFailOnError()) {
+                    throw new EntityNotFoundException("Vocabulary with id " + vocabId + " not found");
+                } else {
+                    log.warn("Vocabulary with id {} not found, skipping", vocabId);
+                    continue;
+                }
+            }
 
-        //     VocabularyItem itemData = itemsMap.get(vocabId);
-        //     VocabularySetItem item = VocabularySetItem.builder()
-        //             .vocabularySet(vocabularySet)
-        //             .vocabulary(vocabulary)
-        //             .displayOrder(itemData.getDisplayOrder() != null
-        //                     ? itemData.getDisplayOrder()
-        //                     : maxOrder + counter++)
-        //             .customDefinition(itemData.getCustomDefinition())
-        //             .customExample(itemData.getCustomExample())
-        //             .build();
+            VocabularyItem itemData = command.getVocabularyItems().stream()
+                    .filter(item -> vocabId.equals(item.getVocabularyId()))
+                    .findFirst()
+                    .orElse(null);
 
-        //     newItems.add(item);
-        // }
+            VocabularySetItem item = VocabularySetItem.builder()
+                    .vocabularySet(vocabularySetRepository.findById(command.getVocabularySetId()))
+                    .vocabulary(vocabulary)
+                    .displayOrder(itemData != null && itemData.getDisplayOrder() != null
+                            ? itemData.getDisplayOrder()
+                            : maxOrder + counter++)
+                    .customDefinition(itemData != null ? itemData.getCustomDefinition() : null)
+                    .customExample(itemData != null ? itemData.getCustomExample() : null)
+                    .build();
+
+            newItems.add(item);
+        }
 
         // 8. Tối ưu: Lưu tất cả items trong một lần gọi
         vocabularySetItemRepository.saveAll(newItems);
