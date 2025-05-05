@@ -1,4 +1,6 @@
-# Server Configuration
+#=============================================================================
+# SERVER CONFIGURATION
+#=============================================================================
 server:
   port: ${SERVER_PORT:8080}
   servlet:
@@ -7,110 +9,120 @@ server:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json
     min-response-size: 1024
+  tomcat:
+    max-threads: ${SERVER_MAX_THREADS:200}
+    accept-count: ${SERVER_ACCEPT_COUNT:100}
+    max-connections: ${SERVER_MAX_CONNECTIONS:8192}
 
-# Spring Configuration
+#=============================================================================
+# SPRING CONFIGURATION
+#=============================================================================
 spring:
   application:
     name: ReelNetApp
-
-  # Profile Configuration
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:prod}
 
+  #-----------------------------------------------------------------------------
   # Database Configuration
+  #-----------------------------------------------------------------------------
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/reelnet}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
-      minimum-idle: 5
-      maximum-pool-size: 25
-      idle-timeout: 30000
-      pool-name: ReelNetHikariCP
+      minimum-idle: ${SPRING_DATASOURCE_MINIMUM_IDLE:5}
+      maximum-pool-size: ${SPRING_DATASOURCE_MAXIMUM_POOL_SIZE:25}
       connection-timeout: 30000
       max-lifetime: 60000
-      auto-commit: true
-      leak-detection-threshold: 60000
+      # Cấu hình PostgreSQL tối ưu
       data-source-properties:
         reWriteBatchedInserts: true
-        prepareThreshold: 0
-        preparedStatementCacheQueries: 0
         cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
 
+  #-----------------------------------------------------------------------------
   # JPA Configuration
+  #-----------------------------------------------------------------------------
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
     properties:
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        javax:
-          persistence:
-            validation:
-              mode: none
-        schema_validation:
-          enabled: false
         jdbc:
-          time_zone: UTC
           batch_size: 25
-          batch_versioned_data: true
           order_inserts: true
           order_updates: true
-        temp:
-          use_jdbc_metadata_defaults: false
-        types:
-          print:
-            banner: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    open-in-view: false
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
 
+  #-----------------------------------------------------------------------------
   # Security Configuration
+  #-----------------------------------------------------------------------------
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://${auth0.domain}/.well-known/jwks.json
           issuer-uri: https://${auth0.domain}/
-          audience: ${auth0.audience}
+          jwk-set-uri: https://${auth0.domain}/.well-known/jwks.json
+    require-ssl: ${SECURITY_REQUIRE_SSL:false}
+    headers:
+      frame-options: DENY
+      content-type-options: nosniff
+      xss-protection: 1; mode=block
 
+  #-----------------------------------------------------------------------------
   # Kafka Configuration
+  #-----------------------------------------------------------------------------
   kafka:
-    enabled: false # Disable Kafka by default
+    enabled: ${KAFKA_ENABLED:false}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:reelnet-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     topics:
-      domain-events: domain-events
+      domain-events: ${KAFKA_TOPIC_DOMAIN_EVENTS:domain-events}
 
-  # Flyway Configuration
+  #-----------------------------------------------------------------------------
+  # Database Migration
+  #-----------------------------------------------------------------------------
   flyway:
-    enabled: true # Enable flyway
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-    validate-on-migrate: true
+    enabled: ${FLYWAY_ENABLED:true}
     clean-disabled: true
 
-  # Jackson Configuration
+  #-----------------------------------------------------------------------------
+  # JSON Serialization
+  #-----------------------------------------------------------------------------
   jackson:
     serialization:
       write-dates-as-timestamps: false
-    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
     time-zone: UTC
-    default-property-inclusion: non-null
+    default-property-inclusion: NON_NULL
 
+  #-----------------------------------------------------------------------------
   # Cache Configuration
+  #-----------------------------------------------------------------------------
   cache:
-    type: caffeine
+    type: ${SPRING_CACHE_TYPE:caffeine}
     caffeine:
       spec: maximumSize=500,expireAfterAccess=600s
+    redis:
+      time-to-live: ${REDIS_TTL:3600000}
+      cache-null-values: false
+      use-key-prefix: true
 
+  #-----------------------------------------------------------------------------
   # Mail Configuration
+  #-----------------------------------------------------------------------------
   mail:
     host: ${SPRING_MAIL_HOST:smtp.example.com}
     port: ${SPRING_MAIL_PORT:587}
@@ -119,209 +131,222 @@ spring:
     properties:
       mail:
         smtp:
-          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
           starttls:
-            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+          timeout: 5000
+          connection-timeout: 5000
+    test-connection: false
 
-  # Multipart File Upload Configuration
+  #-----------------------------------------------------------------------------
+  # File Upload Configuration
+  #-----------------------------------------------------------------------------
   servlet:
     multipart:
       enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:10MB}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:10MB}
       file-size-threshold: 2KB
+      location: ${java.io.tmpdir}
 
-# Logging Configuration
+#=============================================================================
+# LOGGING CONFIGURATION
+#=============================================================================
 logging:
   level:
-    root: INFO
-    "[com.learning.reelnet]": DEBUG
-    "[org.hibernate.SQL]": DEBUG
-    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
-    "[org.springframework.security]": TRACE
-    "[org.springframework.security.oauth2]": TRACE
-    "[org.springframework.security.jwt]": TRACE
-    "[org.springframework.security.web]": TRACE
-    "[io.jsonwebtoken]": TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/reelnet.log
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-      max-history: 30
+    root: ${LOG_LEVEL_ROOT:INFO}
+    "[com.learning.reelnet]": ${LOG_LEVEL_APP:INFO}
+    "[org.hibernate.SQL]": INFO
+    "[org.springframework.security]": INFO
 
-# Swagger/OpenAPI Configuration
+#=============================================================================
+# API DOCUMENTATION - SWAGGER/OPENAPI
+#=============================================================================
 springdoc:
   api-docs:
-    enabled: true
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:false}
     path: /api-docs
   swagger-ui:
-    enabled: true
+    enabled: ${SPRINGDOC_SWAGGER_UI_ENABLED:false}
     path: /swagger-ui.html
     disable-swagger-default-url: true
-    configUrl: /api/v1/api-docs/swagger-config
-    url: /api/v1/api-docs
-    use-root-path: false
+    doc-expansion: none
   default-produces-media-type: application/json
   default-consumes-media-type: application/json
-  paths-to-match:
-    - /**
   packages-to-scan:
     - com.learning.reelnet
   show-actuator: false
-  writer-with-default-pretty-printer: true
-  model-and-view-allowed: false
 
-# CORS Configuration
+#=============================================================================
+# CROSS-ORIGIN RESOURCE SHARING (CORS)
+#=============================================================================
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
   allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
-  allowed-headers: ${CORS_ALLOWED_HEADERS:Content-Type,Authorization}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:Content-Type,Authorization,X-Requested-With,Accept,Origin}
   exposed-headers: ${CORS_EXPOSED_HEADERS:Authorization}
   max-age: ${CORS_MAX_AGE:3600}
   allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
 
-# Auth0 Configuration
+#=============================================================================
+# AUTHENTICATION - AUTH0 CONFIGURATION
+#=============================================================================
 auth0:
-  domain: ${AUTH0_DOMAIN:dev-og4gg3ghvjxtwo22.us.auth0.com}
-  clientId: ${AUTH0_CLIENT_ID:XpSryAbP6XqOfjAoHmVsJc6ZDVaA7upR}
-  clientSecret: ${AUTH0_CLIENT_SECRET:ccM53jvwx6nCakr-kr8KxAWV_5ssvq9HFK2Bn4vghaHdhXx2O1aeiQnJKhPRmnMz}
-  audience: ${AUTH0_AUDIENCE:dev-og4gg3ghvjxtwo22.us.auth0.com/api/v2/}
-  connection: Username-Password-Authentication
+  domain: ${AUTH0_DOMAIN:dev-example.auth0.com}
+  clientId: ${AUTH0_CLIENT_ID:default-client-id}
+  clientSecret: ${AUTH0_CLIENT_SECRET:default-secret}
+  audience: ${AUTH0_AUDIENCE:https://dev-example.auth0.com/api/v2/}
   management:
+    clientId: ${AUTH0_MGMT_CLIENT_ID:default-mgmt-client-id}
+    clientSecret: ${AUTH0_MGMT_CLIENT_SECRET:default-mgmt-secret}
+    audience: ${AUTH0_MGMT_AUDIENCE:https://dev-example.auth0.com/api/v2/}
     api:
-      rate-limit: 10
-      token-cache-ms: 86400000
+      rate-limit: 5
+    cache:
+      enabled: true
+      time-to-live: 3600
   webhook:
-    signing-secret: YOUR_WEBHOOK_SIGNING_SECRET
+    signing-secret: ${AUTH0_WEBHOOK_SIGNING_SECRET:default-secret}
+    verify-signature: ${AUTH0_WEBHOOK_VERIFY_SIGNATURE:true}
+    events: ${AUTH0_WEBHOOK_EVENTS:user.created,user.updated,user.deleted}
 
-# config async user
+#=============================================================================
+# USER SYNCHRONIZATION CONFIGURATION
+#=============================================================================
 user:
   sync:
-    minimum-interval-hours: 24
-    create-if-not-exists: true
+    minimum-interval-hours: ${USER_SYNC_MIN_INTERVAL:24}
+    create-if-not-exists: ${USER_SYNC_CREATE_IF_NOT_EXISTS:true}
+    role-mapping:
+      admin: ROLE_ADMIN
+      content-manager: ROLE_CONTENT_MANAGER
+      user-manager: ROLE_USER_MANAGER
+      user: ROLE_USER
 
-# config Cache
+#=============================================================================
+# CACHE CONFIGURATION
+#=============================================================================
 cache:
   user-info:
-    expiration: 3600
-    max-size: 1000
+    expiration: ${CACHE_USER_INFO_EXPIRATION:3600}
+    max-size: ${CACHE_USER_INFO_MAX_SIZE:1000}
+  permissions:
+    expiration: ${CACHE_PERMISSIONS_EXPIRATION:3600}
+    max-size: ${CACHE_PERMISSIONS_MAX_SIZE:500}
+  roles:
+    expiration: ${CACHE_ROLES_EXPIRATION:3600}
+    max-size: ${CACHE_ROLES_MAX_SIZE:200}
 
-# Custom Application Properties
+#=============================================================================
+# APPLICATION SPECIFIC CONFIGURATION
+#=============================================================================
 app:
+  #-----------------------------------------------------------------------------
   # API Configuration
+  #-----------------------------------------------------------------------------
   api:
-    problem-base-url: https://api.reelnet.com/problems
-    version: v1
+    problem-base-url: ${APP_PROBLEM_BASE_URL:https://api.reelnet.com/problems}
+    version: ${APP_API_VERSION:v1}
+  version: ${APP_VERSION:1.0.0}
 
-  # Application Version
-  version: 1.0.0
-
-  # Rate Limit Configuration
+  #-----------------------------------------------------------------------------
+  # Rate Limiting
+  #-----------------------------------------------------------------------------
   rate-limit:
-    enabled: true
-    cache-name: rateLimitCache
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    cache-name: ${RATE_LIMIT_CACHE_NAME:rateLimitCache}
     limits:
       default:
-        capacity: 50
-        refill-tokens: 50
-        refill-duration: 1
-        refill-time-unit: MINUTES
+        capacity: 20
+        refill-tokens: ${RATE_LIMIT_DEFAULT_REFILL_TOKENS:50}
+        refill-duration: ${RATE_LIMIT_DEFAULT_REFILL_DURATION:1}
+        refill-time-unit: ${RATE_LIMIT_DEFAULT_REFILL_TIME_UNIT:MINUTES}
       api:
-        capacity: 100
-        refill-tokens: 100
-        refill-duration: 1
-        refill-time-unit: MINUTES
+        capacity: 50
+        refill-tokens: ${RATE_LIMIT_API_REFILL_TOKENS:100}
+        refill-duration: ${RATE_LIMIT_API_REFILL_DURATION:1}
+        refill-time-unit: ${RATE_LIMIT_API_REFILL_TIME_UNIT:MINUTES}
       auth:
-        capacity: 10
-        refill-tokens: 10
-        refill-duration: 1
-        refill-time-unit: MINUTES
+        capacity: 5
+        refill-tokens: ${RATE_LIMIT_AUTH_REFILL_TOKENS:10}
+        refill-duration: ${RATE_LIMIT_AUTH_REFILL_DURATION:1}
+        refill-time-unit: ${RATE_LIMIT_AUTH_REFILL_TIME_UNIT:MINUTES}
 
+  #-----------------------------------------------------------------------------
   # Pagination Configuration
+  #-----------------------------------------------------------------------------
   pagination:
-    default-page-size: 20
-    max-page-size: 100
+    default-page-size: ${APP_DEFAULT_PAGE_SIZE:20}
+    max-page-size: ${APP_MAX_PAGE_SIZE:100}
 
+  #-----------------------------------------------------------------------------
   # File Storage Configuration
+  #-----------------------------------------------------------------------------
   storage:
-    location: ${user.home}/reelnet/uploads
-    allowed-content-types: image/jpeg,image/png,image/gif,application/pdf
-    max-file-size: 5MB
+    location: ${APP_STORAGE_LOCATION:/data/reelnet/uploads}
+    allowed-content-types: ${APP_STORAGE_ALLOWED_CONTENT_TYPES:image/jpeg,image/png,image/gif,application/pdf}
+    max-file-size: ${APP_STORAGE_MAX_FILE_SIZE:5MB}
+    naming-strategy: ${APP_STORAGE_NAMING_STRATEGY:UUID}
+    create-directories: ${APP_STORAGE_CREATE_DIRECTORIES:true}
+    thumbnail:
+      enabled: ${APP_STORAGE_THUMBNAIL_ENABLED:true}
+      width: ${APP_STORAGE_THUMBNAIL_WIDTH:200}
+      height: ${APP_STORAGE_THUMBNAIL_HEIGHT:200}
 
+  #-----------------------------------------------------------------------------
   # Email Configuration
+  #-----------------------------------------------------------------------------
   email:
-    from: noreply@reelnet.com
-    support: support@reelnet.com
+    from: ${APP_EMAIL_FROM:noreply@reelnet.com}
+    support: ${APP_EMAIL_SUPPORT:support@reelnet.com}
+    templates:
+      path: ${APP_EMAIL_TEMPLATES_PATH:classpath:/templates/email/}
 
+  #-----------------------------------------------------------------------------
   # Feature Flags
+  #-----------------------------------------------------------------------------
   features:
-    enable-social-login: true
-    enable-file-upload: true
-    enable-advanced-search: true
+    enable-social-login: ${FEATURE_SOCIAL_LOGIN:true}
+    enable-file-upload: ${FEATURE_FILE_UPLOAD:true}
+    enable-advanced-search: ${FEATURE_ADVANCED_SEARCH:true}
+    enable-notifications: false
+    enable-content-moderation: false
+    enable-recommendation-engine: false
+    enable-metrics-collection: ${FEATURE_METRICS_COLLECTION:true}
 
+  #-----------------------------------------------------------------------------
   # Async Task Configuration
+  #-----------------------------------------------------------------------------
   async:
-    core-pool-size: 5
-    max-pool-size: 10
-    queue-capacity: 25
-    thread-name-prefix: ReelNet-Async-
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:5}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:10}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:25}
+    thread-name-prefix: ${ASYNC_THREAD_PREFIX:ReelNet-Async-}
+    rejection-policy: ${ASYNC_REJECTION_POLICY:CALLER_RUNS}
 
-# Actuator Configuration
+#=============================================================================
+# MONITORING & MANAGEMENT - ACTUATOR CONFIGURATION
+#=============================================================================
 management:
   endpoints:
     web:
-      base-path: /actuator
       exposure:
-        include: health,info,metrics,prometheus,env,loggers,flyway,cache,mappings,beans,conditions,configprops,scheduledtasks,threaddump,heapdump,logfile
-      cors:
-        allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
-        allowed-methods: GET
+        include: health,info,metrics,prometheus,applicationstatus,systemresources
+      base-path: /actuator
   endpoint:
     health:
-      show-details: when-authorized
-      show-components: when-authorized
-      probes:
-        enabled: true
-      group:
-        readiness:
-          include: ${management.health.group.readiness.include:db,diskSpace}
-        liveness:
-          include: ping
-    info:
+      show-details: always
+    applicationstatus:
       enabled: true
-    env:
-      post:
-        enabled: false # Disable changing environment at runtime for security
+    systemresources:
+      enabled: true
     shutdown:
-      enabled: false # Disable shutdown endpoint for security
-  info:
-    env:
-      enabled: true
-    java:
-      enabled: true
-    os:
-      enabled: true
-    git:
-      enabled: true
-    build:
-      enabled: true
+      enabled: false
   health:
-    defaults:
-      enabled: true
     diskspace:
       enabled: true
     db:
       enabled: true
-    redis:
-      enabled: ${spring.data.redis.enabled:false}
-    mail:
-      enabled: false
-    kafka:
-      enabled: ${spring.kafka.enabled:false}
     livenessstate:
       enabled: true
     readinessstate:
@@ -329,30 +354,17 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-      percentiles:
-        http.server.requests: 0.5, 0.75, 0.95, 0.99
-    enable:
-      jvm: true
-      process: true
-      system: true
-      logback: true
-      tomcat: true
-      jdbc: true
-  prometheus:
-    metrics:
-      export:
-        enabled: true
-# Add application info for the info endpoint
+
+#=============================================================================
+# APPLICATION INFORMATION
+#=============================================================================
 info:
   application:
     name: ${spring.application.name}
-    description: Reel Network Application Backend
-    version: 0.1.0
+    description: ${INFO_APP_DESCRIPTION:Reel Network Application Backend}
+    version: ${INFO_APP_VERSION:0.1.0}
   contact:
-    email: support@reelnet.com
-    website: https://reelnet.com
+    email: ${INFO_CONTACT_EMAIL:support@reelnet.com}
+    website: ${INFO_CONTACT_WEBSITE:https://reelnet.com}
   server:
     environment: ${spring.profiles.active}

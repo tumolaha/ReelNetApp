@@ -167,7 +167,7 @@ public class SpecificationFactory {
     }
     
     // Thêm method hỗ trợ cho Date
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static <T> Predicate handleDateComparison(CriteriaBuilder cb, 
             Path<Object> path, String operator, String dateStr, Class<?> targetType) {
         try {
@@ -188,7 +188,57 @@ public class SpecificationFactory {
                     return cb.equal(path, dateValue);
                 case "GREATER_THAN":
                     return cb.greaterThan(path.as(Comparable.class), (Comparable)dateValue);
-                // Thêm các case khác...
+                case "LESS_THAN":
+                    return cb.lessThan(path.as(Comparable.class), (Comparable)dateValue);
+                case "GREATER_THAN_EQUAL":  
+                    return cb.greaterThanOrEqualTo(path.as(Comparable.class), (Comparable)dateValue);
+                case "LESS_THAN_EQUAL":
+                    return cb.lessThanOrEqualTo(path.as(Comparable.class), (Comparable)dateValue);
+                case "BETWEEN":
+                    String[] dateRange = dateStr.split("TO");
+                    if (dateRange.length == 2) {
+                        Object startDate = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(dateRange[0]);
+                        Object endDate = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(dateRange[1]);
+                        return cb.between(path.as(Comparable.class), (Comparable)startDate, (Comparable)endDate);
+                    } else {
+                        return cb.conjunction(); // Trả về true nếu parse lỗi
+                    }
+                case "NOT_BETWEEN":
+                    String[] notBetweenRange = dateStr.split("TO");
+                    if (notBetweenRange.length == 2) {
+                        Object startDate = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(notBetweenRange[0]);
+                        Object endDate = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(notBetweenRange[1]);
+                        return cb.not(cb.between(path.as(Comparable.class), (Comparable)startDate, (Comparable)endDate));
+                    } else {
+                        return cb.conjunction(); // Trả về true nếu parse lỗi
+                    }
+                case "IS_NULL":
+                    return cb.isNull(path);
+                case "IS_NOT_NULL": 
+                    return cb.isNotNull(path);
+                case "IN":
+                    CriteriaBuilder.In<Object> inPredicate = cb.in(path);
+                    List<?> values = (List<?>) dateValue;
+                    for (Object val : values) {
+                        inPredicate.value(val);
+                    }
+                    return inPredicate;
+                case "NOT_IN":
+                    return cb.not(path.in((List<?>) dateValue));
+                case "LIKE":
+                    return cb.like(cb.lower(path.as(String.class)),
+                            "%" + dateValue.toString().toLowerCase() + "%");
+                case "CONTAINS":
+                    return cb.like(cb.lower(path.as(String.class)),
+                            "%" + dateValue.toString().toLowerCase() + "%");
+                case "STARTS_WITH":
+                    return cb.like(cb.lower(path.as(String.class)),
+                            dateValue.toString().toLowerCase() + "%");
+                case "ENDS_WITH":
+                    return cb.like(cb.lower(path.as(String.class)),
+                            "%" + dateValue.toString().toLowerCase());
+                case "NOT_EQUALS":
+                    return cb.notEqual(path, dateValue);
                 default:
                     return cb.equal(path, dateValue);
             }

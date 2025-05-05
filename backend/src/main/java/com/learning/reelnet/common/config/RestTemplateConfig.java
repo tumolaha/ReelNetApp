@@ -10,10 +10,10 @@ import java.time.Duration;
 public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder
+    public RestTemplate restTemplate() {
+        return new RestTemplateBuilder()
             .setConnectTimeout(Duration.ofSeconds(5))
-            .setReadTimeout(Duration.ofSeconds(30))
+            .setReadTimeout(Duration.ofSeconds(5))
             .build();
     }
 }

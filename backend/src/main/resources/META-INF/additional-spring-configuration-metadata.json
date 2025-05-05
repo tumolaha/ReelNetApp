@@ -123,5 +123,125 @@
     "name": "app.version",
     "type": "java.lang.String",
     "description": "A description for 'app.version'"
+  },
+  {
+    "name": "auth0.management.clientId",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.clientId'"
+  },
+  {
+    "name": "spring.data.redis.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.data.redis.enabled'"
+  },
+  {
+    "name": "security.basic.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'security.basic.enabled'"
+  },
+  {
+    "name": "app.features.enable-swagger",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-swagger'"
+  },
+  {
+    "name": "app.storage.location",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.location'"
+  },
+  {
+    "name": "spring.kafka.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.kafka.enabled'"
+  },
+  {
+    "name": "app.email.templates.path",
+    "type": "java.lang.String",
+    "description": "A description for 'app.email.templates.path'"
+  },
+  {
+    "name": "app.features.enable-debug-mode",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-debug-mode'"
+  },
+  {
+    "name": "app.features.enable-test-endpoints",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-test-endpoints'"
+  },
+  {
+    "name": "app.features.enable-notifications",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-notifications'"
+  },
+  {
+    "name": "app.features.enable-content-moderation",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-content-moderation'"
+  },
+  {
+    "name": "app.features.enable-recommendation-engine",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-recommendation-engine'"
+  },
+  {
+    "name": "app.mock-services.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'app.mock-services.enabled'"
+  },
+  {
+    "name": "app.mock-services.response-delay",
+    "type": "java.lang.String",
+    "description": "A description for 'app.mock-services.response-delay'"
+  },
+  {
+    "name": "app.async.core-pool-size",
+    "type": "java.lang.String",
+    "description": "A description for 'app.async.core-pool-size'"
+  },
+  {
+    "name": "app.async.max-pool-size",
+    "type": "java.lang.String",
+    "description": "A description for 'app.async.max-pool-size'"
+  },
+  {
+    "name": "app.async.queue-capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'app.async.queue-capacity'"
+  },
+  {
+    "name": "app.async.thread-name-prefix",
+    "type": "java.lang.String",
+    "description": "A description for 'app.async.thread-name-prefix'"
+  },
+  {
+    "name": "auth0.management.cache.time-to-live",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.cache.time-to-live'"
+  },
+  {
+    "name": "spring.mail.debug",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mail.debug'"
+  },
+  {
+    "name": "cache.permissions.max-size",
+    "type": "java.lang.String",
+    "description": "A description for 'cache.permissions.max-size'"
+  },
+  {
+    "name": "cache.permissions.expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'cache.permissions.expiration'"
+  },
+  {
+    "name": "cache.roles.max-size",
+    "type": "java.lang.String",
+    "description": "A description for 'cache.roles.max-size'"
+  },
+  {
+    "name": "cache.roles.expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'cache.roles.expiration'"
   }
 ]}

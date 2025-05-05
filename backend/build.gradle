@@ -90,7 +90,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit platform launcher
 
 	// Environment variables and metrics
-	implementation 'me.paulschwarz:spring-dotenv:2.5.4'
+	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 

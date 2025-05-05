@@ -1,91 +1,316 @@
-# Production-specific configurations
+#=============================================================================
+# PRODUCTION-SPECIFIC CONFIGURATIONS
+#=============================================================================
 spring:
-  # Database Configuration  
+  #-----------------------------------------------------------------------------
+  # Database Configuration
+  #-----------------------------------------------------------------------------
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/reelnet}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
     hikari:
-      minimum-idle: 10
-      maximum-pool-size: 50
+      minimum-idle: ${SPRING_DATASOURCE_MINIMUM_IDLE:10}
+      maximum-pool-size: ${SPRING_DATASOURCE_MAXIMUM_POOL_SIZE:50}
       idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+      register-mbeans: true
   
-  # JPA Configuration  
+  #-----------------------------------------------------------------------------
+  # JPA Configuration
+  #-----------------------------------------------------------------------------  
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate # Chỉ kiểm tra schema, không thay đổi
     show-sql: false
+    open-in-view: false # Tắt anti-pattern
     properties:
       hibernate:
         dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+        jdbc:
+          batch_size: 50
+          batch_versioned_data: true
+          order_inserts: true
+          order_updates: true
+          fetch_size: 100
+        generate_statistics: false
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
   
-  # Kafka Configuration for production
+  #-----------------------------------------------------------------------------
+  # Flyway Configuration
+  #-----------------------------------------------------------------------------
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    baseline-on-migrate: true
+    clean-disabled: true # Bảo vệ dữ liệu production
+    validate-on-migrate: true
+    locations: classpath:db/migration
+    out-of-order: false
+    placeholders:
+      app_user: ${FLYWAY_APP_USER:app_user}
+  
+  #-----------------------------------------------------------------------------
+  # Kafka Configuration
+  #-----------------------------------------------------------------------------
   kafka:
-    enabled: true
+    enabled: ${KAFKA_ENABLED:true}
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:reelnet-prod-group}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      acks: all
+      retries: 3
+      batch-size: 16384
+      buffer-memory: 33554432
+      properties:
+        retry.backoff.ms: 500
+    listener:
+      concurrency: ${KAFKA_LISTENER_CONCURRENCY:3}
   
-  # Flyway Configuration for production
-  flyway:
-    enabled: false # Keep disabled unless you have migrations ready
-  
-  # Production cache configuration
+  #-----------------------------------------------------------------------------
+  # Cache Configuration
+  #-----------------------------------------------------------------------------
   cache:
     type: redis
     redis:
-      time-to-live: 600000
+      time-to-live: ${REDIS_TTL:600000}
+      cache-null-values: false
+      use-key-prefix: true
   
+  #-----------------------------------------------------------------------------
   # Redis Configuration
+  #-----------------------------------------------------------------------------
   data:
     redis:
       host: ${SPRING_REDIS_HOST:redis}
       port: ${SPRING_REDIS_PORT:6379}
       password: ${SPRING_REDIS_PASSWORD:}
+      timeout: 10000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
+          time-between-eviction-runs: 30s
+  
+  #-----------------------------------------------------------------------------
+  # Security Configuration
+  #-----------------------------------------------------------------------------
+  security:
+    require-ssl: true
+    headers:
+      frame-options: DENY
+      content-type-options: nosniff
+      xss-protection: 1; mode=block
+      cache-control: no-cache, no-store, max-age=0, must-revalidate
+      pragma: no-cache
+      expires: 0
+  
+  #-----------------------------------------------------------------------------
+  # Session Configuration
+  #-----------------------------------------------------------------------------
+  session:
+    store-type: ${SESSION_STORE_TYPE:redis}
+    redis:
+      flush-mode: on-save
+      namespace: reelnet:session
+    timeout: 30m
+  
+  #-----------------------------------------------------------------------------
+  # Mail Configuration
+  #-----------------------------------------------------------------------------
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          timeout: 5000
+          connection-timeout: 5000
+  
+  #-----------------------------------------------------------------------------
+  # Actuator Configuration
+  #-----------------------------------------------------------------------------
+  server:
+    tomcat:
+      max-threads: ${SERVER_MAX_THREADS:200}
+      accept-count: ${SERVER_ACCEPT_COUNT:100}
+      max-connections: ${SERVER_MAX_CONNECTIONS:10000}
+      mbeanregistry:
+        enabled: true
+      accesslog:
+        enabled: true
+        directory: /var/log/reelnet
+        pattern: '%h %l %u %t "%r" %s %b %D ms'
 
-# Logging Configuration
+#=============================================================================
+# LOGGING CONFIGURATION
+#=============================================================================
 logging:
   level:
     root: WARN
-    '[com.learning.reelnet]': INFO
+    '[com.learning.reelnet]': ${LOG_LEVEL_APP:INFO}
+    '[org.springframework.web]': ERROR
+    '[org.springframework.security]': WARN
+  pattern:
+    console: '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx'
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID} --- [%t] %-40.40logger{39} : %m%n%wEx'
   file:
-    name: /var/log/reelnet/application.log
-    
-# Production security settings
+    name: ${LOG_FILE_PATH:/var/log/reelnet/application.log}
+    max-size: ${LOG_MAX_FILE_SIZE:50MB}
+    max-history: ${LOG_MAX_HISTORY:30}
+
+#=============================================================================
+# JWT CONFIGURATION
+#=============================================================================
 security:
-  require-ssl: true
   jwt:
     token:
       secret-key: ${JWT_SECRET_KEY}
-      expire-length: ${JWT_EXPIRATION:3600}
+      expire-length: ${JWT_EXPIRATION:86400}
 
-# Production-specific application properties
+#=============================================================================
+# SWAGGER/API DOCS CONFIGURATION
+#=============================================================================
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+#=============================================================================
+# APPLICATION-SPECIFIC CONFIGURATION
+#=============================================================================
 app:
-  features:
-    enable-swagger: false
+  # API Configuration
+  api:
+    rate-limit:
+      enabled: true
   
-  # Use cloud storage for production
+  # File Storage
   storage:
-    type: s3
-    bucket: reelnet-uploads
+    type: ${STORAGE_TYPE:s3}
+    location: ${STORAGE_LOCATION:/data/reelnet/uploads}
+    bucket: ${STORAGE_BUCKET_NAME:reelnet-uploads-prod}
     region: ${AWS_REGION:us-east-1}
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    cdn-url: ${CDN_URL:https://cdn.reelnet.com}
+    naming-strategy: UUID
+  
+  # Email Configuration
+  email:
+    from: ${APP_EMAIL_FROM:noreply@reelnet.com}
+    support: ${APP_EMAIL_SUPPORT:support@reelnet.com}
+    templates:
+      path: classpath:/templates/email/prod/
+  
+  # Feature Flags
+  features:
+    enable-debug-mode: false
+    enable-test-endpoints: false
+    enable-notifications: ${FEATURE_NOTIFICATIONS:true}
+    enable-content-moderation: ${FEATURE_CONTENT_MODERATION:true}
+    enable-recommendation-engine: ${FEATURE_RECOMMENDATION_ENGINE:true}
+    enable-metrics-collection: true
+  
+  # Async Task Configuration
+  async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:10}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:50}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:100}
+    keep-alive: 120
+    await-termination-seconds: 60
 
-# Production-specific Actuator settings
+#=============================================================================
+# ACTUATOR & MONITORING CONFIGURATION
+#=============================================================================
 management:
   endpoints:
     web:
+      base-path: ${ACTUATOR_BASE_PATH:/actuator}
       exposure:
-        # In production, be more selective about exposed endpoints
         include: health,info,metrics,prometheus
+      cors:
+        allowed-origins: ${ACTUATOR_CORS_ORIGINS:*}
+        allowed-methods: GET
+    jmx:
+      exposure:
+        include: health,info,metrics
   endpoint:
     health:
       show-details: when-authorized
+      show-components: when-authorized
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState,diskSpace
+        readiness:
+          include: readinessState,db,redis,kafka
+    shutdown:
+      enabled: false
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    kafka:
+      enabled: ${KAFKA_ENABLED:true}
+    mail:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: production
+    enable:
+      jvm: true
+      process: true
+      system: true
+      logback: true
+      tomcat: true
+      jdbc: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.75, 0.95, 0.99
+  tracing:
+    sampling:
+      probability: 0.1
+  server:
+    port: ${MANAGEMENT_SERVER_PORT:8081}
   prometheus:
     metrics:
       export:
-        enabled: true  # Use Prometheus in production
-  server:
-    port: 8081  # Optional: Use separate port for actuator in production
-    ssl:
-      enabled: true  # Security best practice for production
+        enabled: true

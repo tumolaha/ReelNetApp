@@ -45,6 +45,7 @@ public class SecurityConfig {
      * @throws Exception if configuration fails
      */
     @Bean
+
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             // Configure CSRF protection
@@ -52,7 +53,7 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 // Disable CSRF for API endpoints that are designed to be called by non-browser clients
-                .ignoringRequestMatchers("/api/v1/auth/**", "/webhook/**")
+                // .ignoringRequestMatchers("/api/v1/auth/**", "/webhook/**")
             )
             
             // Configure CORS
@@ -75,23 +76,22 @@ public class SecurityConfig {
             // Configure authorization rules
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints - no authentication required
-                .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                .requestMatchers("/api/v1/auth/**", "/api/v1/public/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                // .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // .requestMatchers("/api/v1/auth/**", "/api/v1/public/**").permitAll()
+                // .requestMatchers("/error").permitAll()
                 
                 // Admin endpoints
-                .requestMatchers("/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
+                // .requestMatchers("/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
                 
                 // Content manager endpoints
-                .requestMatchers("/api/v1/content-management/**").hasAnyRole("ADMIN", "CONTENT_MANAGER")
+                // .requestMatchers("/api/v1/content-management/**").hasAnyRole("ADMIN", "CONTENT_MANAGER")
                 
                 // User management endpoints
-                .requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "USER_MANAGER")
+                // .requestMatchers("/api/v1/users/**").hasAnyRole("ADMIN", "USER_MANAGER")
                 
                 // Reporting endpoints
-                .requestMatchers("/api/v1/reports/**").hasAnyRole("ADMIN", "ANALYST")
+                // .requestMatchers("/api/v1/reports/**").hasAnyRole("ADMIN", "ANALYST")
                 
                 // All other endpoints require authentication
                 .anyRequest().authenticated()

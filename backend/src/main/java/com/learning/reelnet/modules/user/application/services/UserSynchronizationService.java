@@ -43,9 +43,10 @@ public class UserSynchronizationService {
     @Transactional
     public User ensureUserIsSynchronized(String userId, Jwt jwt) {
         Optional<User> optionalUser = userRepository.findById(userId);
-
+        log.info("Ensuring user is synchronized: {}", optionalUser);
         if (optionalUser.isEmpty()) {
             if (createIfNotExists) {
+                log.info("User not found in local database, creating new user from Auth0: {}", userId);
                 return createUserFromAuth0(userId);
             } else {
                 throw new UserNotFoundException("User not found in local database: " + userId);
@@ -140,7 +141,6 @@ public class UserSynchronizationService {
         if (updatedAt != null && !updatedAt.equals(user.getAuth0UpdatedAt())) {
             return true;
         }
-
         return false;
     }
 

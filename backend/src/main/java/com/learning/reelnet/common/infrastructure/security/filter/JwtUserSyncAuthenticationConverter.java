@@ -33,7 +33,8 @@ public class JwtUserSyncAuthenticationConverter implements Converter<Jwt, Abstra
     public AbstractAuthenticationToken convert(Jwt jwt) {
         // 1. Lấy thông tin cơ bản từ JWT
         String userId = jwt.getSubject();
-        
+        log.info("Converting JWT to Authentication Token for user: {}", userId);
+
         try {
             // 2. Đồng bộ và lấy thông tin user
             User user = userSyncService.ensureUserIsSynchronized(userId, jwt);

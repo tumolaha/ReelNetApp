@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 import javax.sql.DataSource;
 
@@ -15,10 +14,17 @@ public class DatabaseConfig {
     @Bean
     @Primary
     public DataSource dataSource(DataSourceProperties properties) {
-        HikariDataSource hikariDataSource = properties.initializeDataSourceBuilder()
+        HikariDataSource dataSource = properties.initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
         
-        return new LazyConnectionDataSourceProxy(hikariDataSource);
+        // Explicitly set critical properties
+        dataSource.addDataSourceProperty("prepareThreshold", "0");
+        dataSource.addDataSourceProperty("preferQueryMode", "simple");
+        dataSource.addDataSourceProperty("disableColumnSanitiser", "true");
+        dataSource.addDataSourceProperty("reWriteBatchedInserts", "true");
+        dataSource.setAutoCommit(false);
+        
+        return dataSource;
     }
-} 
+}

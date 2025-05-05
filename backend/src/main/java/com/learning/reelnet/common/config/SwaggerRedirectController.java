@@ -1,5 +1,6 @@
 package com.learning.reelnet.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -16,50 +17,41 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 @Configuration
 public class SwaggerRedirectController {
-
+    
+    @Value("${server.servlet.context-path:/api}")
+    private String contextPath;
+    
     /**
-     * Redirect to the correct swagger-config URL
+     * Redirect root URL to Swagger UI
      */
-    @GetMapping("/api-docs/swagger-config")
-    public RedirectView redirectSwaggerConfigToCorrectPath() {
-        return new RedirectView("/api/v1/api-docs/swagger-config");
+    @GetMapping("/doc")
+    public RedirectView redirectToSwaggerUi() {
+        return new RedirectView(contextPath + "/swagger-ui/index.html");
     }
-
+    
+    /**
+     * Redirect from old swagger-ui.html path to new Swagger UI
+     */
+    @GetMapping("/swagger-ui.html")
+    public RedirectView redirectFromOldSwaggerUiPath() {
+        return new RedirectView(contextPath + "/swagger-ui/index.html");
+    }
+    
     /**
      * Redirect to the correct api-docs URL
      */
     @GetMapping("/api-docs")
     public RedirectView redirectApiDocsToCorrectPath() {
-        return new RedirectView("/api/v1/api-docs");
-    }
-
-    /**
-     * Redirect API docs requests that include the context path
-     */
-    @GetMapping("/swagger-ui/api/v1/api-docs")
-    public RedirectView redirectApiDocs() {
-        return new RedirectView("/api/v1/api-docs");
+        return new RedirectView(contextPath + "/api-docs");
     }
     
     /**
-     * Redirect swagger config requests that include the context path
+     * Redirect to the correct swagger-config URL
      */
-    @GetMapping("/swagger-ui/api/v1/api-docs/swagger-config")
-    public RedirectView redirectSwaggerConfig() {
-        return new RedirectView("/api/v1/api-docs/swagger-config");
+    @GetMapping("/api-docs/swagger-config")
+    public RedirectView redirectSwaggerConfigToCorrectPath() {
+        return new RedirectView(contextPath + "/api-docs/swagger-config");
     }
 
-    /**
-     * Allow public access to Swagger UI and API docs
-     */
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain swaggerPublicSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .securityMatcher("/swagger-ui/**", "/api-docs/**", "/", "/api/v1/swagger-ui/**", "/api/v1/api-docs/**")
-            .authorizeHttpRequests(authorize -> authorize
-                .anyRequest().permitAll()
-            );
-        return http.build();
-    }
-} 
+    
+}

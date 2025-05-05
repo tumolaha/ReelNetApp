@@ -1,51 +1,208 @@
-# Development-specific configurations
+#=============================================================================
+# DEVELOPMENT-SPECIFIC CONFIGURATIONS
+#=============================================================================
+
 server:
-  port: 8081  # Sử dụng cổng 8081 thay vì 8080 để tránh xung đột
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: ${SERVER_SERVLET_CONTEXT_PATH:/api}
 
 spring:
   # Database Configuration  
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/reelnet_dev}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
-  
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:10}
+      leak-detection-threshold: 30000
+      data-source-properties:
+        prepareThreshold: 0
+        preferQueryMode: simple
+        disableColumnSanitiser: true
+      auto-commit: false
+
   # JPA Configuration  
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    # REMOVE the incorrect properties from here
+    database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}  # Add this line
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
     properties:
       hibernate:
-        '[format_sql]': true
-        dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+        dialect: org.hibernate.dialect.PostgreSQLDialect  # Add this line as backup
+        '[jdbc.use_get_generated_keys]': false
+        '[order_inserts]': true
+        '[order_updates]': true
+        '[connection.provider_disables_autocommit]': true
+        '[query.in_clause_parameter_padding]': true
+        '[format_sql]': ${SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL:true}
+        '[generate_statistics]': true
+        jdbc:
+          '[batch_size]': 25
+        connection:
+          '[provider_disables_autocommit]': false
   
-  # Kafka Configuration - disabled in development
+  # Kafka Configuration
   kafka:
-    enabled: false
+    enabled: ${KAFKA_ENABLED:false}
   
-  # Flyway Configuration - disabled in development for now
+  # Flyway Configuration - Sửa lỗi "Found non-empty schema"
   flyway:
-    enabled: false
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    clean-on-validation-error: true
+    clean-disabled: ${SPRING_FLYWAY_CLEAN_DISABLED:true}
+    baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:true}
+    baseline-version: ${SPRING_FLYWAY_BASELINE_VERSION:0}
+    baseline-description: ${SPRING_FLYWAY_BASELINE_DESCRIPTION:Initial database setup}
+    out-of-order: false   # Enforce sequential migrations
   
   # Enable development tools
   devtools:
     restart:
-      enabled: true
+      enabled: ${SPRING_DEVTOOLS_RESTART_ENABLED:true}
+      additional-paths: src/main/java
+      additional-exclude: static/**,public/**
     livereload:
+      enabled: ${SPRING_DEVTOOLS_LIVERELOAD_ENABLED:true}
+  
+  # H2 Console
+  h2:
+    console:
       enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+  
+  # Mail Configuration
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.example.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:your-username}
+    password: ${SPRING_MAIL_PASSWORD:your-password}
+    properties:
+      '[mail.smtp.auth]': true
+      '[mail.smtp.starttls.enable]': true
+    test-connection: ${SPRING_MAIL_TEST_CONNECTION:false}  # CHANGE THIS LINE - default to false
+    debug: ${SPRING_MAIL_DEBUG:false}
+  
+  # Cache Configuration
+  cache:
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=60s
 
-# Logging Configuration
+# Logging cấu hình chi tiết hơn cho dev
 logging:
   level:
-    root: INFO
-    '[com.learning.reelnet]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
+    root: ${LOG_LEVEL_ROOT:INFO}
+    '[com.learning.reelnet]': ${LOG_LEVEL_APP:INFO}           # Changed from DEBUG
+    '[org.hibernate.SQL]': ${LOG_LEVEL_HIBERNATE_SQL:INFO}     # Changed from DEBUG
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': ${LOG_LEVEL_HIBERNATE_PARAMS:INFO}  # Changed from TRACE
+    '[org.springframework.security]': ${LOG_LEVEL_SECURITY:INFO}  # Changed from DEBUG
+    '[org.springframework.web]': ${LOG_LEVEL_WEB:INFO}        # Changed from DEBUG
+    '[org.springframework.cache]': ${LOG_LEVEL_CACHE:INFO}     # Changed from DEBUG
+    '[org.springframework.transaction]': ${LOG_LEVEL_TRANSACTION:INFO}  # Changed from DEBUG
+    '[org.flywaydb.core]': ERROR  
+    '[org.springdoc]': WARN   # Added to reduce OpenAPI logs
+    '[org.springframework]': WARN   # Added to reduce Spring framework logs
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan(%-40.40logger{39}) : %msg%n"  # Simplified pattern
 
-# Auth0 development configuration
+# Cấu hình Auth0 cho dev
 auth0:
-  domain: dev-og4gg3ghvjxtwo22.us.auth0.com
-  audience: dev-og4gg3ghvjxtwo22.us.auth0.com/api/v2/
-  client-id: XpSryAbP6XqOfjAoHmVsJc6ZDVaA7upR
-  client-secret: ccM53jvwx6nCakr-kr8KxAWV_5ssvq9HFK2Bn4vghaHdhXx2O1aeiQnJKhPRmnMz
+  management:
+    api:
+      rate-limit: ${AUTH0_MGMT_RATE_LIMIT:20}
+    cache:
+      time-to-live: 600
+
+# Swagger luôn bật trong dev
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui/index.html
+    url: /api/v1/api-docs  # Include context path explicitly
+    config-url: /api/v1/api-docs/swagger-config  # Include context path explicitly
+    disable-swagger-default-url: true
+    doc-expansion: list
+  pathsToMatch: /**
+  show-actuator: true
+
+# Cấu hình tính năng dev-specific
+app:
+  # Thêm các feature flags cho môi trường dev
+  features:
+    enable-debug-mode: ${FEATURE_DEBUG_MODE:true}
+    enable-test-endpoints: ${FEATURE_TEST_ENDPOINTS:true}
+    enable-notifications: ${FEATURE_NOTIFICATIONS:true}
+    enable-content-moderation: ${FEATURE_CONTENT_MODERATION:true}
+    enable-recommendation-engine: ${FEATURE_RECOMMENDATION_ENGINE:true}
+    
+  # Storage path cho dev
+  storage:
+    location: ${APP_STORAGE_LOCATION:${user.home}/reelnet/uploads/dev}
+
+  # Email cho môi trường phát triển
+  email:
+    from: ${APP_EMAIL_FROM:dev-noreply@reelnet.com}
+    templates:
+      path: classpath:/templates/email/dev/
+
+  # Rate limiting - ít nghiêm ngặt hơn trong môi trường phát triển
+  rate-limit:
+    limits:
+      default:
+        capacity: ${RATE_LIMIT_DEFAULT_CAPACITY:100}
+        refill-tokens: ${RATE_LIMIT_DEFAULT_REFILL_TOKENS:100}
+      api: 
+        capacity: ${RATE_LIMIT_API_CAPACITY:200}
+        refill-tokens: ${RATE_LIMIT_API_REFILL_TOKENS:200}
+      auth:
+        capacity: ${RATE_LIMIT_AUTH_CAPACITY:50}
+        refill-tokens: ${RATE_LIMIT_AUTH_REFILL_TOKENS:50}
+  
+  # Cấu hình cho testing
+  mock-services:
+    enabled: ${MOCK_SERVICES_ENABLED:true}
+    response-delay: 0
+  
+  # Async task configuration
+  async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:2}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:5}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:10}
+    thread-name-prefix: ${ASYNC_THREAD_PREFIX:ReelNet-Dev-Async-}
+
+# Cấu hình Actuator cho dev
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_INCLUDE:*}
+      base-path: ${ACTUATOR_BASE_PATH:/actuator}
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_HEALTH_SHOW_DETAILS:always}
+    shutdown:
+      enabled: true
+
+# Tùy chọn debug cho Spring Boot
+debug: ${SPRING_APP_DEBUG:false}
+
+# Cấu hình cache cho dev
+cache:
+  user-info:
+    max-size: ${CACHE_USER_INFO_MAX_SIZE:100}
+    expiration: ${CACHE_USER_INFO_EXPIRATION:600}
+  permissions:
+    max-size: ${CACHE_PERMISSIONS_MAX_SIZE:50}
+    expiration: ${CACHE_PERMISSIONS_EXPIRATION:600}
+  roles:
+    max-size: ${CACHE_ROLES_MAX_SIZE:20}
+    expiration: ${CACHE_ROLES_EXPIRATION:600}
 
