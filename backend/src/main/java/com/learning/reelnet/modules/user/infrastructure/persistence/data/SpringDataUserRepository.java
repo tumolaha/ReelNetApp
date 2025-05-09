@@ -27,7 +27,7 @@ public interface SpringDataUserRepository extends JpaRepository<UserEntity, Stri
          * @param date The date to search for users last synced before
          * @return A list of UserEntity found
          */
-        List<UserEntity> findByLastSyncedWithAuth0Before(Date date);
+        List<UserEntity> findByLastSyncTimestampBefore(Date date);
         /**
          * check if a user exists by their ID
          * 

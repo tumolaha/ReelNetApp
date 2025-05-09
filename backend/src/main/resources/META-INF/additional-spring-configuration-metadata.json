@@ -243,5 +243,155 @@
     "name": "cache.roles.expiration",
     "type": "java.lang.String",
     "description": "A description for 'cache.roles.expiration'"
+  },
+  {
+    "name": "spring.security.headers.frame-options",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.security.headers.frame-options'"
+  },
+  {
+    "name": "spring.security.headers.content-type-options",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.security.headers.content-type-options'"
+  },
+  {
+    "name": "spring.security.headers.xss-protection",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.security.headers.xss-protection'"
+  },
+  {
+    "name": "spring.security.require-ssl",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.security.require-ssl'"
+  },
+  {
+    "name": "server.tomcat.max-threads",
+    "type": "java.lang.String",
+    "description": "A description for 'server.tomcat.max-threads'"
+  },
+  {
+    "name": "spring.kafka.topics.domain-events",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.kafka.topics.domain-events'"
+  },
+  {
+    "name": "auth0.management.clientSecret",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.clientSecret'"
+  },
+  {
+    "name": "auth0.management.cache.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.cache.enabled'"
+  },
+  {
+    "name": "auth0.management.audience",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.management.audience'"
+  },
+  {
+    "name": "auth0.webhook.verify-signature",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.webhook.verify-signature'"
+  },
+  {
+    "name": "auth0.webhook.events",
+    "type": "java.lang.String",
+    "description": "A description for 'auth0.webhook.events'"
+  },
+  {
+    "name": "user.sync.role-mapping.admin",
+    "type": "java.lang.String",
+    "description": "A description for 'user.sync.role-mapping.admin'"
+  },
+  {
+    "name": "user.sync.role-mapping.content-manager",
+    "type": "java.lang.String",
+    "description": "A description for 'user.sync.role-mapping.content-manager'"
+  },
+  {
+    "name": "user.sync.role-mapping.user-manager",
+    "type": "java.lang.String",
+    "description": "A description for 'user.sync.role-mapping.user-manager'"
+  },
+  {
+    "name": "user.sync.role-mapping.user",
+    "type": "java.lang.String",
+    "description": "A description for 'user.sync.role-mapping.user'"
+  },
+  {
+    "name": "app.features.enable-file-upload",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-file-upload'"
+  },
+  {
+    "name": "app.features.enable-advanced-search",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-advanced-search'"
+  },
+  {
+    "name": "app.features.enable-metrics-collection",
+    "type": "java.lang.String",
+    "description": "A description for 'app.features.enable-metrics-collection'"
+  },
+  {
+    "name": "app.storage.allowed-content-types",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.allowed-content-types'"
+  },
+  {
+    "name": "app.storage.max-file-size",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.max-file-size'"
+  },
+  {
+    "name": "app.storage.create-directories",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.create-directories'"
+  },
+  {
+    "name": "app.storage.thumbnail.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.thumbnail.enabled'"
+  },
+  {
+    "name": "app.storage.thumbnail.width",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.thumbnail.width'"
+  },
+  {
+    "name": "app.storage.thumbnail.height",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.thumbnail.height'"
+  },
+  {
+    "name": "app.storage.naming-strategy",
+    "type": "java.lang.String",
+    "description": "A description for 'app.storage.naming-strategy'"
+  },
+  {
+    "name": "app.pagination.default-page-size",
+    "type": "java.lang.String",
+    "description": "A description for 'app.pagination.default-page-size'"
+  },
+  {
+    "name": "app.pagination.max-page-size",
+    "type": "java.lang.String",
+    "description": "A description for 'app.pagination.max-page-size'"
+  },
+  {
+    "name": "management.endpoint.applicationstatus.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'management.endpoint.applicationstatus.enabled'"
+  },
+  {
+    "name": "management.endpoint.systemresources.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'management.endpoint.systemresources.enabled'"
+  },
+  {
+    "name": "app.async.rejection-policy",
+    "type": "java.lang.String",
+    "description": "A description for 'app.async.rejection-policy'"
   }
 ]}

@@ -15,63 +15,124 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+import com.learning.reelnet.common.infrastructure.security.exception.UserSynchronizationException;
 import com.learning.reelnet.modules.user.api.dto.ReelNetUserDetails;
 import com.learning.reelnet.modules.user.application.services.UserSynchronizationService;
 import com.learning.reelnet.modules.user.domain.model.User;
 
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Converts JWT to Authentication and synchronizes user information with Auth0
+ */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class JwtUserSyncAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
-
+    
     private final UserSynchronizationService userSyncService;
+    private final MeterRegistry meterRegistry;
+    
+    private final Timer syncTimer;
+    private final Counter syncSuccessCounter;
+    private final Counter syncFailureCounter;
+    private final Counter fallbackCounter;
+    
+    /**
+     * Constructor with metrics
+     */
+    public JwtUserSyncAuthenticationConverter(UserSynchronizationService userSyncService, MeterRegistry meterRegistry) {
+        this.userSyncService = userSyncService;
+        this.meterRegistry = meterRegistry;
+        
+        // Initialize metrics
+        this.syncTimer = Timer.builder("auth.user_sync.time")
+                .description("User synchronization time")
+                .register(meterRegistry);
+        
+        this.syncSuccessCounter = Counter.builder("auth.user_sync.success")
+                .description("Number of successful user synchronizations")
+                .register(meterRegistry);
+        
+        this.syncFailureCounter = Counter.builder("auth.user_sync.failure")
+                .description("Number of failed user synchronizations")
+                .register(meterRegistry);
+        
+        this.fallbackCounter = Counter.builder("auth.user_sync.fallback")
+                .description("Number of authentications using fallback")
+                .register(meterRegistry);
+    }
     
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        // 1. Lấy thông tin cơ bản từ JWT
         String userId = jwt.getSubject();
-        log.info("Converting JWT to Authentication Token for user: {}", userId);
-
+        log.debug("Converting JWT to Authentication for user: {}", userId);
+        
+        User user = null;
+        Collection<GrantedAuthority> authorities;
+        ReelNetUserDetails userDetails = null;
+        
         try {
-            // 2. Đồng bộ và lấy thông tin user
-            User user = userSyncService.ensureUserIsSynchronized(userId, jwt);
+            // Measure synchronization time
+            user = syncTimer.record(() -> userSyncService.ensureUserIsSynchronized(userId, jwt));
             
-            // 3. Tạo authorities từ roles và permissions của user
-            Collection<GrantedAuthority> authorities = getAuthoritiesFromUser(user);
-            
-            // 4. Tạo đối tượng CustomUserDetails để chứa thông tin user
-            ReelNetUserDetails userDetails = new ReelNetUserDetails(user);
-            
-            // 5. Tạo và trả về token xác thực
-            JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities, userId);
-            token.setDetails(userDetails);
-            return token;
+            if (user != null) {
+                // Get authorities from database user
+                authorities = getAuthoritiesFromUser(user);
+                userDetails = new ReelNetUserDetails(user);
+                syncSuccessCounter.increment();
+                
+                log.debug("User synchronized successfully: {}", userId);
+            } else {
+                // Fallback: get authorities from JWT if synchronization fails
+                authorities = extractAuthoritiesFromJwt(jwt);
+                fallbackCounter.increment();
+                
+                log.warn("User sync returned null, using fallback from JWT for: {}", userId);
+            }
         } catch (Exception e) {
-            log.error("Error synchronizing user from JWT: {}", e.getMessage(), e);
+            // Handle synchronization error
+            log.error("Error synchronizing user {}: {}", userId, e.getMessage(), e);
+            syncFailureCounter.increment();
             
-            // Nếu xảy ra lỗi, vẫn trả về token xác thực cơ bản với thông tin từ JWT
-            Collection<GrantedAuthority> fallbackAuthorities = extractAuthoritiesFromJwt(jwt);
-            return new JwtAuthenticationToken(jwt, fallbackAuthorities, userId);
+            // Fallback to JWT permissions
+            authorities = extractAuthoritiesFromJwt(jwt);
+            
+            // Log specific error
+            if (e instanceof UserSynchronizationException) {
+                log.warn("User synchronization failed: {}", e.getMessage());
+            } else {
+                log.error("Unexpected error during user synchronization", e);
+            }
         }
+        
+        // Create authentication token with user information
+        JwtAuthenticationToken authToken = new JwtAuthenticationToken(jwt, authorities, userId);
+        
+        // Attach user details to token
+        if (userDetails != null) {
+            authToken.setDetails(userDetails);
+        }
+        
+        return authToken;
     }
     
     /**
-     * Lấy authorities từ user entity
+     * Get authorities from user entity
      */
     private Collection<GrantedAuthority> getAuthoritiesFromUser(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         
-        // Thêm roles
+        // Add roles
         if (user.getRoles() != null) {
             for (UUID role : user.getRoles()) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
             }
         }
         
-        // Thêm permissions
+        // Add permissions
         if (user.getPermissions() != null) {
             for (UUID permission : user.getPermissions()) {
                 authorities.add(new SimpleGrantedAuthority("PERMISSION_" + permission));
@@ -82,17 +143,31 @@ public class JwtUserSyncAuthenticationConverter implements Converter<Jwt, Abstra
     }
     
     /**
-     * Trích xuất authorities từ JWT trong trường hợp fallback
+     * Extract authorities from JWT in fallback scenario
      */
     private Collection<GrantedAuthority> extractAuthoritiesFromJwt(Jwt jwt) {
-        // Lấy permissions từ claim
+        // Get permissions from claim
         Collection<String> permissions = jwt.getClaimAsStringList("permissions");
         if (permissions == null) {
             return Collections.emptyList();
         }
         
-        return permissions.stream()
-            .map(permission -> new SimpleGrantedAuthority("ROLE_" + permission.toUpperCase()))
-            .collect(Collectors.toList());
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        
+        // Get roles from Auth0
+        String namespace = "https://reelnet.com/";
+        Collection<String> roles = jwt.getClaimAsStringList(namespace + "roles");
+        if (roles != null) {
+            authorities.addAll(roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                .collect(Collectors.toList()));
+        }
+        
+        // Get permissions from Auth0
+        authorities.addAll(permissions.stream()
+            .map(permission -> new SimpleGrantedAuthority("PERMISSION_" + permission.toUpperCase()))
+            .collect(Collectors.toList()));
+            
+        return authorities;
     }
 }

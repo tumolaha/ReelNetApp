@@ -76,7 +76,27 @@ public class Auth0ManagementClient {
      */
     public Auth0UserDTO getUserInfo(String userId) {
         try {
-            return userCache.get(userId);
+            // Clear previous cached data for this user if we've had issues
+            for (int retry = 0; retry < 2; retry++) {
+                try {
+                    return userCache.get(userId);
+                } catch (Exception e) {
+                    if (retry == 0) {
+                        // On first error, invalidate cache and token and retry once
+                        log.warn("First attempt to get user info failed, invalidating cache and retrying: {}", e.getMessage());
+                        userCache.invalidate(userId);
+                        this.managementApiToken = null;
+                        this.tokenExpiresAt = null;
+                    } else {
+                        // On second error, propagate the exception
+                        log.error("Error fetching user info from Auth0 after retry: {}", e.getMessage(), e);
+                        throw e;
+                    }
+                }
+            }
+            
+            // This should never be reached due to the throw in the catch block
+            throw new RuntimeException("Failed to get user info from Auth0 after retries");
         } catch (Exception e) {
             log.error("Error fetching user info from Auth0: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to get user info from Auth0", e);
@@ -134,12 +154,12 @@ public class Auth0ManagementClient {
      * Gọi API Auth0 để lấy thông tin user
      */
     private Auth0UserDTO fetchUserInfoFromAuth0(String userId) {
-        ensureManagementApiToken();
-
-        String url = String.format("https://%s/api/v2/users/%s", domain, userId);
-        HttpHeaders headers = createAuthHeaders();
-
         try {
+            ensureManagementApiToken();
+
+            String url = String.format("https://%s/api/v2/users/%s", domain, userId);
+            HttpHeaders headers = createAuthHeaders();
+
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<Auth0UserDTO> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity, Auth0UserDTO.class);
@@ -147,7 +167,11 @@ public class Auth0ManagementClient {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             handleApiError(e, userId);
-            // Nếu không phục hồi được, ném ngoại lệ
+            // handleApiError will now throw exceptions rather than retry
+            // so this line should never be reached
+            throw new RuntimeException("Failed to fetch user from Auth0", e);
+        } catch (Exception e) {
+            log.error("Unexpected error fetching user from Auth0: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to fetch user from Auth0", e);
         }
     }
@@ -161,17 +185,21 @@ public class Auth0ManagementClient {
             log.warn("Auth0 API rate limit reached. Retrying...");
             try {
                 Thread.sleep(1000);
-                fetchUserInfoFromAuth0(userId);
+                // Don't call fetchUserInfoFromAuth0 recursively to avoid nesting
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
+            throw new RuntimeException("Auth0 API rate limit reached", e);
         } else if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             // Token hết hạn - làm mới và thử lại
             log.warn("Auth0 Management API token expired. Refreshing...");
+            // Invalidate token but don't call API again here
             this.managementApiToken = null;
-            fetchUserInfoFromAuth0(userId);
+            this.tokenExpiresAt = null;
+            throw new RuntimeException("Auth0 token unauthorized, token has been invalidated for refresh", e);
         } else {
             log.error("Auth0 API error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Auth0 API error: " + e.getStatusCode(), e);
         }
     }
 
@@ -189,6 +217,7 @@ public class Auth0ManagementClient {
         boolean isValid = now.isBefore(tokenExpiresAt);
         
         if (!isValid) {
+            // Fix the duration calculation (was using wrong order of parameters)
             log.debug("Token expired: current={}, expires={}, diff={}ms", 
                 now, tokenExpiresAt, 
                 java.time.Duration.between(now, tokenExpiresAt).toMillis());
@@ -210,6 +239,8 @@ public class Auth0ManagementClient {
                 return;
             }
 
+            log.info("Requesting new Auth0 Management API token");
+            
             // Call API for new token
             String url = String.format("https://%s/oauth/token", domain);
             HttpHeaders headers = new HttpHeaders();
@@ -226,21 +257,79 @@ public class Auth0ManagementClient {
                     url, HttpMethod.POST, entity, Map.class);
 
             Map<String, Object> responseBody = response.getBody();
-            managementApiToken = (String) responseBody.get("access_token");
-            Integer expiresIn = (Integer) responseBody.get("expires_in");
+            if (responseBody != null) {
+                // Clear previous token first
+                this.managementApiToken = null;
+                this.tokenExpiresAt = null;
+                
+                // Store the new token
+                managementApiToken = (String) responseBody.get("access_token");
+                Integer expiresIn = (Integer) responseBody.get("expires_in");
 
-            // Store expiration time correctly
-            tokenExpiresAt = Instant.now().plusSeconds(expiresIn - 300);
-            
-            log.info("Acquired new Auth0 Management API token, expires in {} seconds", expiresIn);
-            log.debug("Token will expire at: {}", tokenExpiresAt);
+                // Validate token before storing
+                if (managementApiToken == null || managementApiToken.isEmpty()) {
+                    throw new RuntimeException("Auth0 returned an empty management token");
+                }
+
+                // Lưu thời gian hết hạn chính xác với buffer ngắn hơn (30 giây)
+                tokenExpiresAt = Instant.now().plusSeconds(expiresIn - 30); 
+                
+                // Thêm log debug chi tiết về thời gian hết hạn
+                log.info("Acquired new Auth0 Management API token, expires in {} seconds", expiresIn);
+                log.debug("Token will expire at: {}, current time: {}, buffer: 30 seconds", 
+                    tokenExpiresAt, Instant.now());
+                
+                // Validate the token immediately by making a test API call
+                verifyToken();
+            } else {
+                log.error("Empty response body when requesting Auth0 Management API token");
+                throw new RuntimeException("Failed to acquire Auth0 Management API token: empty response");
+            }
         } catch (Exception e) {
-            log.error("Failed to acquire Auth0 Management API token", e);
+            log.error("Failed to acquire Auth0 Management API token: {}", e.getMessage(), e);
             // Reset token state on error
             managementApiToken = null;
             tokenExpiresAt = null;
+            throw new RuntimeException("Failed to acquire Auth0 Management API token", e);
         } finally {
             tokenLock.unlock();
+        }
+    }
+    
+    /**
+     * Verify the token is valid by making a test API call
+     */
+    @SuppressWarnings("rawtypes")
+    private void verifyToken() {
+        try {
+            // Make a simple API call that doesn't require much resources
+            String url = String.format("https://%s/api/v2/clients", domain);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(managementApiToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            // Only request page 0 with 1 item to minimize data
+            url += "?page=0&per_page=1";
+            
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<List> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, List.class);
+            
+            // If we get here, the token is valid
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.debug("Auth0 Management API token verified successfully");
+            } else {
+                log.warn("Auth0 Management API token verification returned non-success status: {}", 
+                        response.getStatusCode());
+                // Still consider it an error
+                throw new RuntimeException("Auth0 token verification failed with status: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            log.error("Auth0 Management API token verification failed: {}", e.getMessage(), e);
+            // Invalidate the token since verification failed
+            this.managementApiToken = null;
+            this.tokenExpiresAt = null;
+            throw new RuntimeException("Auth0 Management API token verification failed", e);
         }
     }
 

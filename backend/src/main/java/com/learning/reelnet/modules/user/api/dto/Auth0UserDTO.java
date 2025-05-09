@@ -1,58 +1,53 @@
 package com.learning.reelnet.modules.user.api.dto;
 
+import java.time.Instant;
+import java.util.Map;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
 
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
 public class Auth0UserDTO {
-    private String user_id;
-    private String name;
-    private String email;
-    private String picture;
-    private String nickname;
-    private String given_name;
-    private String family_name;
-    private String locale;
-    private boolean email_verified;
-    private boolean blocked;
-    private String updated_at;
-    private String created_at;
-    private List<Auth0Identity> identities;
     
-    @JsonProperty("app_metadata")
-    private Map<String, Object> appMetadata;
+    private String user_id;
+    private String email;
+    private String name;
+    private String nickname;
+    private String picture;
     
     @JsonProperty("user_metadata")
     private Map<String, Object> userMetadata;
     
-    // Helper methods
-    public String getUserId() {
-        return user_id;
-    }
+    @JsonProperty("app_metadata")
+    private Map<String, Object> appMetadata;
     
-    public String getMetadataAsJson(Map<String, Object> metadata) {
-        try {
-            return new ObjectMapper().writeValueAsString(metadata);
-        } catch (JsonProcessingException e) {
-            return "{}";
-        }
-    }
-}
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-class Auth0Identity {
+    @JsonProperty("email_verified")
+    private boolean emailVerified;
+    
+    @JsonProperty("created_at")
+    private Instant createdAt;
+    
+    @JsonProperty("updated_at")
+    private Instant updatedAt;
+    
+    @JsonProperty("last_login")
+    private Instant lastLogin;
+    
+    @JsonProperty("last_ip")
+    private String lastIp;
+    
+    @JsonProperty("logins_count")
+    private Integer loginsCount;
+    
+    private boolean blocked;
+    
+    @JsonProperty("identities")
+    private List<Map<String, Object>> identities;
+    
+    // Auth0 Connection Info
     private String connection;
-    private String provider;
-    private String user_id;
 }

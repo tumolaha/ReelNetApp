@@ -1,8 +1,6 @@
 package com.learning.reelnet.modules.user.infrastructure.persistence.mapper;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
@@ -18,61 +16,58 @@ import com.learning.reelnet.modules.user.infrastructure.persistence.entity.UserE
 @Component
 public class UserEntityMapper {
 
-    /**
-     * Converts a User domain model to a UserEntity JPA entity.
-     * 
-     * @param user The User domain model to convert
-     * @return The converted UserEntity JPA entity
-     */
-    public UserEntity toEntity(User user) {
-        UserEntity entity = new UserEntity();
-        entity.setId(user.getId());
-        entity.setEmail(user.getEmail());
-        entity.setName(user.getName());
-        entity.setPicture(user.getPicture());
-        entity.setNickname(user.getNickname());
-        entity.setLocale(user.getLocale());
-        entity.setPermissions(user.getPermissions());
-        entity.setLastSyncedWithAuth0(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-        entity.setAuth0UpdatedAt(user.getAuth0UpdatedAt());
-        entity.setRoles(user.getRoles());
-        entity.setCreatedAt(Date.from(user.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()));
-        entity.setUpdatedAt(Date.from(user.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant()));
-        entity.setLastLogin(Date.from(user.getLastLogin().atZone(ZoneId.systemDefault()).toInstant()));
-        entity.setEmailVerified(user.isEmailVerified());
-        entity.setBlocked(user.isBlocked());
-        entity.setUserMetadata(user.getUserMetadata());
-        entity.setAppMetadata(user.getAppMetadata());
+        /**
+         * Converts a User domain model to a UserEntity JPA entity.
+         * 
+         * @param user The User domain model to convert
+         * @return The converted UserEntity JPA entity
+         */
+        public UserEntity toEntity(User user) {
+                if (user == null) return null;
+                
+                return UserEntity.builder()
+                                .id(user.getId())
+                                .email(user.getEmail())
+                                .name(user.getName())
+                                .picture(user.getPicture())
+                                .lastLogin(user.getLastLogin())
+                                .lastSyncTimestamp(user.getLastSyncTimestamp())
+                                .userMetadata(user.getUserMetadata())
+                                .appMetadata(user.getAppMetadata())
+                                .roles(user.getRoles())
+                                .permissions(user.getPermissions())
+                                .active(user.isActive())
+                                .emailVerified(user.isEmailVerified())
+                                .applicationData(user.getApplicationData() != null ? 
+                                        user.getApplicationData() : new HashMap<>())
+                                .tenantId(user.getTenantId())
+                                .build();
+        }
 
-        return entity;
-    }
-
-    /**
-     * Converts a UserEntity JPA entity to a User domain model.
-     * 
-     * @param entity The UserEntity JPA entity to convert
-     * @return The converted User domain model
-     */
-    public User toDomain(UserEntity entity) {
-        return User.builder()
-                .id(entity.getId())
-                .email(entity.getEmail())
-                .name(entity.getName())
-                .picture(entity.getPicture())
-                .nickname(entity.getNickname())
-                .locale(entity.getLocale())
-                .permissions(entity.getPermissions())
-                .roles(entity.getRoles())
-                .lastSyncedWithAuth0(
-                        entity.getLastSyncedWithAuth0().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .auth0UpdatedAt(entity.getAuth0UpdatedAt())
-                .createdAt(entity.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .updatedAt(entity.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .lastLogin(entity.getLastLogin().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .emailVerified(entity.isEmailVerified())
-                .blocked(entity.isBlocked())
-                .userMetadata(entity.getUserMetadata())
-                .appMetadata(entity.getAppMetadata())
-                .build();
-    }
+        /**
+         * Converts a UserEntity JPA entity to a User domain model.
+         * 
+         * @param entity The UserEntity JPA entity to convert
+         * @return The converted User domain model
+         */
+        public User toDomain(UserEntity entity) {
+                if (entity == null) return null;
+                
+                return User.builder()
+                                .id(entity.getId())
+                                .email(entity.getEmail())
+                                .name(entity.getName())
+                                .picture(entity.getPicture())
+                                .lastLogin(entity.getLastLogin())
+                                .lastSyncTimestamp(entity.getLastSyncTimestamp())
+                                .userMetadata(entity.getUserMetadata())
+                                .appMetadata(entity.getAppMetadata())
+                                .roles(entity.getRoles())
+                                .permissions(entity.getPermissions())
+                                .active(entity.isActive())
+                                .emailVerified(entity.isEmailVerified())
+                                .applicationData(entity.getApplicationData())
+                                .tenantId(entity.getTenantId())
+                                .build();
+        }
 }

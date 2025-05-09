@@ -1,80 +1,66 @@
 package com.learning.reelnet.modules.user.infrastructure.persistence.entity;
 
-import java.util.Date;
-import java.util.HashSet;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import jakarta.persistence.*;
+import lombok.*;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import jakarta.persistence.Id;
-
-/**
- * JPA Entity for User in the database.
- * Maps to the users table defined in V1__Create_Users_Table.sql
- */
 @Entity
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
-    @Id
-    @Column(unique = true, nullable = false)
-    private String id; // Auth0 user ID
     
-    @Column(nullable = false)
+    @Id
+    private String id;  // Auth0 user_id
+    
+    @Column(unique = true)
     private String email;
     
     private String name;
     private String picture;
-    private String nickname;
-    private String locale;
     
-    @ElementCollection(fetch = FetchType.EAGER)
+    private Instant lastLogin;
+    private Instant lastSyncTimestamp;
+    
+    // Thông tin từ Auth0 được lưu trữ dưới dạng JSON
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> userMetadata;
+    
+    // Thông tin bổ sung của ứng dụng được lưu trữ dưới dạng JSON
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> appMetadata;
+    
+    // Mối quan hệ với roles và permissions
+    @ElementCollection
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<UUID> roles = new HashSet<>();
+    @Column(name = "role_id")
+    private Set<UUID> roles;
     
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
-    private Set<UUID> permissions = new HashSet<>();
+    @Column(name = "permission_id")
+    private Set<UUID> permissions;
     
-    // Thông tin đồng bộ
-    private Date lastSyncedWithAuth0;
-    private String auth0UpdatedAt;
-    
-    // Audit fields
-    @CreatedDate
-    private Date createdAt;
-    
-    @LastModifiedDate
-    private Date updatedAt;
-    
-    private Date lastLogin;
+    // Trạng thái người dùng trong hệ thống
+    private boolean active;
     private boolean emailVerified;
-    private boolean blocked;
     
-    // Dữ liệu tùy chỉnh ứng dụng
-    @Column(columnDefinition = "TEXT")
-    private String userMetadata;
+    // Thông tin bổ sung của ứng dụng
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> applicationData;
     
-    @Column(columnDefinition = "TEXT")
-    private String appMetadata;
+    // Thông tin về tenant nếu có multi-tenancy
+    private String tenantId;
 }

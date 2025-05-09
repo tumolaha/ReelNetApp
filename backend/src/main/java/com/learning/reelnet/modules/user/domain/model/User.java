@@ -1,43 +1,40 @@
 package com.learning.reelnet.modules.user.domain.model;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-/**
- * Domain model representing a user in the system.
- * This entity stores user information synced from Auth0.
- */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class User {
     
-    private String id; // Auth0 user ID
+    private String id;  // Auth0 user_id
     private String email;
     private String name;
     private String picture;
-    private String nickname;
-    private String locale;
-
-    @Builder.Default
-    private Set<UUID> roles = new HashSet<>();
-    @Builder.Default
-    private Set<UUID> permissions = new HashSet<>();
-    private LocalDateTime lastSyncedWithAuth0;
-    private String auth0UpdatedAt;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime lastLogin;
+    
+    private Instant lastLogin;
+    private Instant lastSyncTimestamp;
+    
+    private Map<String, Object> userMetadata;
+    private Map<String, Object> appMetadata;
+    
+    // Roles and permissions
+    private Set<UUID> roles;
+    private Set<UUID> permissions;
+    
+    // User status
+    private boolean active;
     private boolean emailVerified;
-    private boolean blocked;
-    private String userMetadata;
-    private String appMetadata;
+    
+    // Additional application data
+    private Map<String, Object> applicationData;
+    
+    // Multi-tenancy info
+    private String tenantId;
 }

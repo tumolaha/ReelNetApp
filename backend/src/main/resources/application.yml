@@ -53,12 +53,13 @@ spring:
     properties:
       hibernate:
         jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
+          '[batch_size]': 25
+          '[order_inserts]': true
+          '[order_updates]': true
         transaction:
           jta:
             platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+        generate_statistics: false
 
   #-----------------------------------------------------------------------------
   # Security Configuration
@@ -114,11 +115,12 @@ spring:
   cache:
     type: ${SPRING_CACHE_TYPE:caffeine}
     caffeine:
-      spec: maximumSize=500,expireAfterAccess=600s
+      spec: maximumSize=1000,expireAfterAccess=600s
     redis:
       time-to-live: ${REDIS_TTL:3600000}
       cache-null-values: false
       use-key-prefix: true
+    
 
   #-----------------------------------------------------------------------------
   # Mail Configuration
@@ -158,6 +160,8 @@ logging:
     "[com.learning.reelnet]": ${LOG_LEVEL_APP:INFO}
     "[org.hibernate.SQL]": INFO
     "[org.springframework.security]": INFO
+    "[org.hibernate.engine.internal.StatisticalLoggingSessionEventListener]": ERROR
+    "[org.hibernate.stat]": ERROR
 
 #=============================================================================
 # API DOCUMENTATION - SWAGGER/OPENAPI

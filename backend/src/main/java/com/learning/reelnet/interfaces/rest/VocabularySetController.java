@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.learning.reelnet.common.api.query.FilterParams;
@@ -169,8 +171,15 @@ public class VocabularySetController {
                 QueryParams queryParams = (QueryParams) params[0];
                 FilterParams filterParams = (FilterParams) params[1];
                 SearchParams searchParams = (SearchParams) params[2];
+
+                // Get current authenticated user ID from security context
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                String userId = authentication.getName(); // or another appropriate method to extract user ID
+
+                log.info("Fetching recently used vocabulary sets for user: {}", userId);
+                
                 Page<VocabularySetDto> recentSets = vocabularySetFacade.getVocabularySetHistoryByUserId(
-                                "By google-oauth2|106200961462234067141", queryParams, filterParams, searchParams);
+                                userId, queryParams, filterParams, searchParams);
                 PagedResponse<VocabularySetDto> pagedResponse = PagedResponse.<VocabularySetDto>builder()
                                 .content(recentSets.getContent())
                                 .page(PagedResponse.PageMetadata.from(recentSets))
